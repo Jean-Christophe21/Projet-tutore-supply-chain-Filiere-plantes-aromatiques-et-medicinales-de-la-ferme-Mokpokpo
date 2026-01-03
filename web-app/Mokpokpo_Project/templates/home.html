@@ -1,0 +1,71 @@
+﻿<! DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ferme Mokpokpo - Plantes médicinales et aromatiques</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        header {
+            background-color: #2e7d32;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0;
+        }
+
+        .content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            margin-top: 20px;
+        }
+
+            nav a {
+                display: inline-block;
+                background-color: #4caf50;
+                color: white;
+                padding: 10px 20px;
+                text-decoration: none;
+                border-radius: 4px;
+                margin-right: 10px;
+            }
+
+                nav a:hover {
+                    background-color: #45a049;
+                }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🌿 Ferme Mokpokpo</h1>
+        <p>Plantes médicinales et aromatiques de qualité</p>
+    </header>
+
+    <div class="content">
+        <h2>Bienvenue ! </h2>
+        <p>Découvrez notre sélection de plantes médicinales et aromatiques cultivées avec soin.</p>
+
+        <nav>
+            <a href="{% url 'home' %}">Accueil</a>
+            <a href="#">Catalogue (bientôt)</a>
+            <a href="#">Contact</a>
+        </nav>
+    </div>
+</body>
+</html>
