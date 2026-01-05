@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Mon profil - Ferme Mokpokpo{% endblock %}
+
+{% block content %}
+<div class="content-box">
+    <h2>Mon profil</h2>
+    
+    <p><strong>Nom complet :</strong> {{ utilisateur.prenom }} {{ utilisateur.nom }}</p>
+    <p><strong>Email :</strong> {{ utilisateur.email }}</p>
+    {% if client %}
+        <p><strong>Telephone :</strong> {{ client.telephone|default:"Non renseigne" }}</p>
+        <p><strong>Adresse :</strong> {{ client.adresse|default:"Non renseignee" }}</p>
+    {% endif %}
+    <p><strong>Role :</strong> {{ utilisateur.get_role_display }}</p>
+    <p><strong>Membre depuis :</strong> {{ utilisateur.date_creation|date:"d/m/Y" }}</p>
+</div>
+{% endblock %}
