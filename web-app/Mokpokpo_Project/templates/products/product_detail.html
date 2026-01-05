@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ produit.nom_produit }} - Ferme Mokpokpo{% endblock %}
+
+{% block content %}
+<div class="content-box">
+    <h2>{{ produit.nom_produit }}</h2>
+    
+    <p><strong>Type:</strong> {{ produit.type_produit|default:"Non specifie" }}</p>
+    <p><strong>Prix:</strong> {{ produit.prix_unitaire }} EUR</p>
+    
+    {% if produit.description %}
+        <h3>Description</h3>
+        <p>{{ produit.description }}</p>
+    {% endif %}
+    
+    {% if produit.usages %}
+        <h3>Usages</h3>
+        <p>{{ produit.usages }}</p>
+    {% endif %}
+    
+    <p style="margin-top: 2rem;">
+        <a href="{% url 'products:product_list' %}" class="btn">Retour au catalogue</a>
+        {% if user.is_authenticated %}
+            <a href="#" class="btn">Ajouter au panier</a>
+        {% endif %}
+    </p>
+</div>
+{% endblock %}

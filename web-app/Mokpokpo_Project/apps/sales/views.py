@@ -1,3 +1,15 @@
 from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 
-# Create your views here.
+
+@login_required
+def cart_view(request):
+    """Vue du panier"""
+    return render(request, 'sales/cart.html')
+
+
+@login_required
+def order_list(request):
+    """Liste des commandes"""
+    return render(request, 'sales/order_list.html')
+

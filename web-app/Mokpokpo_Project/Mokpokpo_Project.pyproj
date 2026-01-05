@@ -32,6 +32,11 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="apps\accounts\models_new.py" />
+    <Compile Include="apps\products\models_new.py" />
+    <Compile Include="apps\products\urls.py" />
+    <Compile Include="apps\sales\urls.py" />
+    <Compile Include="apps\stock\urls.py" />
     <Compile Include="app\forms.py" />
     <Compile Include="app\models.py" />
     <Compile Include="app\tests.py" />
@@ -62,6 +67,8 @@
     <Folder Include="web-app\Mokpokpo_Project\apps\stocks\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="CORRECTION_PAGES_WEB_COMPLETE.md" />
+    <Content Include="PAGES_WEB_FONCTIONNELLES.txt" />
     <Content Include="requirements.txt" />
     <Content Include="db.sqlite3" />
     <Content Include="app\static\app\content\bootstrap.css" />
@@ -92,6 +99,10 @@
     <Content Include="app\templates\app\layout.html" />
     <Content Include="app\templates\app\login.html" />
     <Content Include="app\templates\app\loginpartial.html" />
+    <Content Include="templates\products\product_detail.html" />
+    <Content Include="templates\products\product_list.html" />
+    <Content Include="templates\sales\cart.html" />
+    <Content Include="templates\sales\order_list.html" />
   </ItemGroup>
   <ItemGroup>
     <None Include="readme.html">

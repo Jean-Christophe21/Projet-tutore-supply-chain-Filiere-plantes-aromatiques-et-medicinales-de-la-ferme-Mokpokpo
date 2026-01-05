@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Catalogue - Ferme Mokpokpo{% endblock %}
+
+{% block content %}
+<div class="content-box">
+    <h2>Catalogue des Produits</h2>
+    
+    {% if produits %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
+            {% for produit in produits %}
+            <div style="border: 1px solid #ddd; padding: 1rem; border-radius: 4px;">
+                <h3>{{ produit.nom_produit }}</h3>
+                <p><strong>Type:</strong> {{ produit.type_produit|default:"Non specifie" }}</p>
+                <p><strong>Prix:</strong> {{ produit.prix_unitaire }} EUR</p>
+                <p>{{ produit.description|truncatewords:20 }}</p>
+                <a href="{% url 'products:product_detail' produit.id_produit %}" class="btn">Voir details</a>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Aucun produit disponible pour le moment.</p>
+        <p><a href="{% url 'home' %}" class="btn">Retour a l'accueil</a></p>
+    {% endif %}
+</div>
+{% endblock %}

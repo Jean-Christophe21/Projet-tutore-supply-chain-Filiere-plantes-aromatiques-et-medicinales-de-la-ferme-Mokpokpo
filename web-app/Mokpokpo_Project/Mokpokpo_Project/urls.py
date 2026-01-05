@@ -3,28 +3,27 @@ Definition of urls for Mokpokpo_Project.
 """
 
 from datetime import datetime
-from django.urls import path
+from django.urls import path, include
 from django.contrib import admin
-from django.contrib.auth.views import LoginView, LogoutView
-from app import forms, views
+from django.views.generic import TemplateView
+from app import views
 
 
 urlpatterns = [
-    path('', views.home, name='home'),
+    # Admin Django
+    path('admin/', admin.site.urls),
+    
+    # Page d'accueil
+    path('', TemplateView.as_view(template_name='home.html'), name='home'),
+    
+    # Applications
+    path('accounts/', include('apps.accounts.urls')),        # Authentification
+    path('products/', include('apps.products.urls')),        # Produits
+    path('stock/', include('apps.stock.urls')),              # Stock
+    path('sales/', include('apps.sales.urls')),              # Ventes/Commandes
+    path('dashboard/', include('apps.dashboard.urls')),      # Dashboards
+    
+    # Pages de l'application de base (contact, about)
     path('contact/', views.contact, name='contact'),
     path('about/', views.about, name='about'),
-    path('login/',
-         LoginView.as_view
-         (
-             template_name='app/login.html',
-             authentication_form=forms.BootstrapAuthenticationForm,
-             extra_context=
-             {
-                 'title': 'Log in',
-                 'year' : datetime.now().year,
-             }
-         ),
-         name='login'),
-    path('logout/', LogoutView.as_view(next_page='/'), name='logout'),
-    path('admin/', admin.site.urls),
 ]
