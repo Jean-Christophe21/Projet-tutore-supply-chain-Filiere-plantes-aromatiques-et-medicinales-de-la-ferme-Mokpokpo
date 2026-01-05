@@ -68,6 +68,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="CORRECTION_PAGES_WEB_COMPLETE.md" />
+    <Content Include="ETAT_FINAL_PROJET.txt" />
+    <Content Include="NETTOYAGE_FINALISATION_COMPLETE.md" />
     <Content Include="PAGES_WEB_FONCTIONNELLES.txt" />
     <Content Include="requirements.txt" />
     <Content Include="db.sqlite3" />
