@@ -14,7 +14,9 @@ from security.hashing import hash_password
 from decimal import Decimal
 
 def create_test_data():
-    db = next(get_db())
+    # Use next() to get the session from the generator
+    db_gen = get_db()
+    db = next(db_gen)
     
     try:
         print("Creation des utilisateurs...")
@@ -72,14 +74,14 @@ def create_test_data():
         client_profile1 = Client(
             id_utilisateur=client1.id_utilisateur,
             telephone="+229 97 00 00 01",
-            adresse="Cotonou, Benin"
+            adresse="Atakpame, Togo"
         )
         db.add(client_profile1)
         
         client_profile2 = Client(
             id_utilisateur=client2.id_utilisateur,
-            telephone="+229 97 00 00 02",
-            adresse="Porto-Novo, Benin"
+            telephone="+228 97 00 00 02",
+            adresse="Atakpame, Togo"
         )
         db.add(client_profile2)
         
@@ -238,4 +240,3 @@ def create_test_data():
 if __name__ == "__main__":
     print("\nCreation des donnees de test pour Mokpokpo...\n")
     create_test_data()
-

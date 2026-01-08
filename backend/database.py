@@ -6,16 +6,16 @@ from dotenv import load_dotenv
 #  1. Charge le fichier .env
 load_dotenv()
 
-#  2. Récupère SANS valeur par défaut contenant le mot de passe
+#  2. Recupere SANS valeur par defaut contenant le mot de passe
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 #  3. Si .env n'existe pas ou DATABASE_URL manquant : ERREUR
 if not DATABASE_URL:
-    print(" ERREUR: Fichier .env manquant ou DATABASE_URL non défini")
-    print("Créez un fichier .env avec:")
+    print(" ERREUR: Fichier .env manquant ou DATABASE_URL non defini")
+    print("Creez un fichier .env avec:")
     print("   DATABASE_URL=postgresql://user:password@localhost:5433/dbname")
     print(" Ou copiez: cp .env.example .env")
-    raise ValueError("Configuration base de données manquante")
+    raise ValueError("Configuration base de donnees manquante")
 
 #  4. Masquage pour l'affichage
 def mask_password(url):
@@ -34,7 +34,7 @@ def mask_password(url):
         pass
     return "postgresql://****@****"
 
-print(f"🔗 {mask_password(DATABASE_URL)}")
+print(f"URL: {mask_password(DATABASE_URL)}")
 
 #  5. Configuration SQLAlchemy
 engine = create_engine(DATABASE_URL)
@@ -51,7 +51,7 @@ def get_db():
 # Test
 try:
     with engine.connect():
-        print("Connexion PostgreSQL réussie")
+        print("Connexion PostgreSQL reussie")
 except Exception as e:
     print(f"Erreur: {str(e)[:100]}...")
     raise

@@ -22,7 +22,7 @@ app = FastAPI(title="API Ferme Mokpokpo")
 # Configuration CORS pour permettre les requêtes depuis le frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001"],
+    allow_origins=["*"],  # Autorise toutes les origines pour la production (ou spécifiez l'URL du frontend déployé)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
