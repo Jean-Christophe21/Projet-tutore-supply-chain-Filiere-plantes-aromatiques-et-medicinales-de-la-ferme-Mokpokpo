@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from database import engine
 from models.model import Base
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -17,6 +18,16 @@ from routers import (
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="API Ferme Mokpokpo")
+
+# Configuration CORS pour permettre les requêtes depuis le frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://localhost:3001"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 

@@ -3,12 +3,14 @@
 import type React from "react"
 
 import { createContext, useContext, useState, useEffect } from "react"
+import { ApiService, ApiError } from "./api-service"
 
 interface User {
-  id: string
+  id_utilisateur: number
   email: string
-  name: string
-  role: "client" | "commercial" | "stock" | "admin"
+  nom: string
+  prenom: string
+  role: "CLIENT" | "GEST_COMMERCIAL" | "GEST_STOCK" | "ADMIN"
 }
 
 interface AuthContextType {
@@ -20,48 +22,91 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+// Helper to decode JWT token
+function parseJwt(token: string): any {
+  try {
+    const base64Url = token.split(".")[1]
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/")
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    )
+    return JSON.parse(jsonPayload)
+  } catch (error) {
+    return null
+  }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   // Initialize from localStorage on mount
   useEffect(() => {
-    const storedUser = localStorage.getItem("mokpokpo_user")
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser))
-      } catch (error) {
-        console.error("[v0] Failed to parse stored user:", error)
+    const initAuth = async () => {
+      const storedToken = localStorage.getItem("mokpokpo_token")
+      const storedUser = localStorage.getItem("mokpokpo_user")
+      
+      if (storedToken && storedUser) {
+        try {
+          const userData = JSON.parse(storedUser)
+          // Verify token is still valid by making a test request
+          await ApiService.getUser(userData.id_utilisateur)
+          setUser(userData)
+        } catch (error) {
+          // Token expired or invalid, clear storage
+          localStorage.removeItem("mokpokpo_token")
+          localStorage.removeItem("mokpokpo_user")
+        }
       }
+      setIsLoading(false)
     }
-    setIsLoading(false)
+    
+    initAuth()
   }, [])
 
   const login = async (email: string, password: string) => {
     setIsLoading(true)
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 800))
-
-    // Mock authentication - determine role based on email domain
-    let role: "client" | "commercial" | "stock" | "admin" = "client"
-    if (email.includes("commercial")) role = "commercial"
-    else if (email.includes("stock")) role = "stock"
-    else if (email.includes("admin")) role = "admin"
-
-    const newUser: User = {
-      id: Math.random().toString(36).substr(2, 9),
-      email,
-      name: email.split("@")[0],
-      role,
+    
+    try {
+      // Call the real API
+      const response = await ApiService.login(email, password)
+      const token = response.access_token
+      
+      // Store the token
+      localStorage.setItem("mokpokpo_token", token)
+      
+      // Decode token to get user info
+      const payload = parseJwt(token)
+      
+      if (payload && payload.sub) {
+        // Fetch full user details
+        const userData = await ApiService.getUser(parseInt(payload.sub))
+        
+        const newUser: User = {
+          id_utilisateur: userData.id_utilisateur,
+          email: userData.email,
+          nom: userData.nom,
+          prenom: userData.prenom,
+          role: userData.role,
+        }
+        
+        setUser(newUser)
+        localStorage.setItem("mokpokpo_user", JSON.stringify(newUser))
+      }
+    } catch (error) {
+      // Re-throw the error so the login component can display it
+      throw error
+    } finally {
+      setIsLoading(false)
     }
-
-    setUser(newUser)
-    localStorage.setItem("mokpokpo_user", JSON.stringify(newUser))
-    setIsLoading(false)
   }
 
   const logout = () => {
     setUser(null)
+    localStorage.removeItem("mokpokpo_token")
     localStorage.removeItem("mokpokpo_user")
   }
 

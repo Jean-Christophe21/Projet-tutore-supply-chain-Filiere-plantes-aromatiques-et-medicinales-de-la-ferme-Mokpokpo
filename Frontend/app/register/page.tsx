@@ -10,6 +10,7 @@ import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { AlertCircle, Leaf } from "lucide-react"
+import { ApiService } from "@/lib/api-service"
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -60,12 +61,24 @@ export default function RegisterPage() {
       return
     }
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    try {
+      // Call the real API to create user
+      await ApiService.createUser({
+        nom: formData.lastName,
+        prenom: formData.firstName,
+        email: formData.email,
+        mot_de_passe: formData.password,
+        role: "CLIENT",
+      })
 
-    // Mock registration
-    router.push("/login?registered=true")
-    setIsLoading(false)
+      // Redirect to login page with success message
+      router.push("/login?registered=true")
+    } catch (err: any) {
+      const errorMessage = err?.detail || "Une erreur est survenue lors de la création du compte"
+      setError(errorMessage)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (

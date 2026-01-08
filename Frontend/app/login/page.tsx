@@ -43,8 +43,9 @@ function LoginFormContent() {
     try {
       await login(formData.email, formData.password)
       router.push("/client")
-    } catch (err) {
-      setError("Erreur de connexion. Veuillez vérifier vos identifiants.")
+    } catch (err: any) {
+      const errorMessage = err?.detail || "Erreur de connexion. Veuillez vérifier vos identifiants."
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -99,9 +100,6 @@ function LoginFormContent() {
                   className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   required
                 />
-                <p className="text-xs text-muted-foreground mt-2">
-                  Conseil: Utilisez "commercial@", "stock@" ou "admin@" pour tester les différents rôles
-                </p>
               </div>
 
               <div>
