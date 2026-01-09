@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalogue - Mokpokpo</title>
+    <link rel="stylesheet" href="css/css_bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <div class="brand-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+                        <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+                    </svg>
+                </div>
+                Mokpokpo
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="products.html">Catalogue</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">À propos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="contact.html">Contact</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center gap-2">
+                    <a href="cart.html" class="btn btn-outline-primary position-relative border-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="8" cy="21" r="1"/>
+                            <circle cx="19" cy="21" r="1"/>
+                            <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+                        </svg>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success cart-badge" style="display: none;">
+                            0
+                        </span>
+                    </a>
+                    <div id="auth-links" class="d-flex gap-2">
+                        <a href="login.html" class="btn btn-outline-primary">Connexion</a>
+                        <a href="register.html" class="btn btn-primary">S'inscrire</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="fw-bold">Notre Catalogue</h1>
+                <p class="text-muted">Découvrez nos produits frais et transformés</p>
+            </div>
+            <!-- Search/Filter Placeholder -->
+            <div class="d-flex gap-2">
+                <input type="text" class="form-control" placeholder="Rechercher...">
+                <select class="form-select w-auto">
+                    <option>Tous</option>
+                    <option>Frais</option>
+                    <option>Séché</option>
+                    <option>Huiles</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Product Card Example 1 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card card-product h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="position-relative">
+                        <img src="https://placehold.co/400x300/e2e8f0/16a34a?text=Menthe" class="card-img-top" alt="Menthe">
+                        <span class="badge badge-stock position-absolute top-0 end-0 m-3 rounded-pill px-3">En Stock</span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Menthe Poivrée</h5>
+                        <p class="text-muted small mb-2">Plantes Fraîches</p>
+                        <p class="card-text text-truncate">Idéale pour les infusions et huiles essentielles.</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="h5 mb-0 text-success fw-bold">1,500 FCFA</span>
+                            <button class="btn btn-sm btn-outline-primary rounded-pill">
+                                Ajouter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Card Example 2 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card card-product h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="position-relative">
+                        <img src="https://placehold.co/400x300/e2e8f0/16a34a?text=Basilic" class="card-img-top" alt="Basilic">
+                        <span class="badge badge-stock position-absolute top-0 end-0 m-3 rounded-pill px-3">En Stock</span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Basilic Sacré</h5>
+                        <p class="text-muted small mb-2">Plantes Fraîches</p>
+                        <p class="card-text text-truncate">Reconnu pour ses vertus apaisantes.</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="h5 mb-0 text-success fw-bold">1,200 FCFA</span>
+                            <button class="btn btn-sm btn-outline-primary rounded-pill">
+                                Ajouter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Card Example 3 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card card-product h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="position-relative">
+                        <img src="https://placehold.co/400x300/e2e8f0/16a34a?text=Moringa" class="card-img-top" alt="Moringa">
+                        <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-3 rounded-pill px-3">Faible Stock</span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Poudre de Moringa</h5>
+                        <p class="text-muted small mb-2">Transformés</p>
+                        <p class="card-text text-truncate">Super-aliment riche en vitamines.</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="h5 mb-0 text-success fw-bold">3,500 FCFA</span>
+                            <button class="btn btn-sm btn-outline-primary rounded-pill">
+                                Ajouter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Card Example 4 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card card-product h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="position-relative">
+                        <img src="https://placehold.co/400x300/e2e8f0/16a34a?text=Citronnelle" class="card-img-top" alt="Citronnelle">
+                         <span class="badge badge-stock position-absolute top-0 end-0 m-3 rounded-pill px-3">En Stock</span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">Huile de Citronnelle</h5>
+                        <p class="text-muted small mb-2">Huiles Essentielles</p>
+                        <p class="card-text text-truncate">Repulsif naturel et parfum agréable.</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="h5 mb-0 text-success fw-bold">2,000 FCFA</span>
+                            <button class="btn btn-sm btn-outline-primary rounded-pill">
+                                Ajouter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center text-lg-start mt-auto">
+        <div class="container p-4">
+             <div class="text-center p-3 text-muted">
+                © 2024 Mokpokpo Supply Chain
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/js_bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="js/script.js"></script>
+</body>
+</html>

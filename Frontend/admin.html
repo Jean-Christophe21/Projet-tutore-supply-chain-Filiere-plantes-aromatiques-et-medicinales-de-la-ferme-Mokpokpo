@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - Mokpokpo</title>
+    <link rel="stylesheet" href="css/css_bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <nav class="navbar navbar-dark bg-dark sticky-top">
+        <div class="container">
+             <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+                <div class="bg-primary rounded p-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+                </div>
+                Mokpokpo Admin
+            </a>
+            <div class="d-flex">
+                 <button class="btn btn-outline-light btn-sm" onclick="window.location.href='index.html'">Déconnexion</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-white sidebar border-end min-vh-100 py-3">
+                <div class="position-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active fw-bold text-primary" href="#">
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="#">
+                                Utilisateurs
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="#">
+                                Produits
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="#">
+                                Commandes
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+                <h2 class="h2 mb-4">Vue d'ensemble</h2>
+                
+                <div class="row g-4 mb-5">
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card shadow-sm border-0 rounded-4">
+                            <div class="card-body">
+                                <h6 class="text-muted text-uppercase fw-bold mb-2">Ventes Totales</h6>
+                                <h3 class="fw-bold text-success">1,250,000 F</h3>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card shadow-sm border-0 rounded-4">
+                            <div class="card-body">
+                                <h6 class="text-muted text-uppercase fw-bold mb-2">Commandes</h6>
+                                <h3 class="fw-bold">45</h3>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card shadow-sm border-0 rounded-4">
+                            <div class="card-body">
+                                <h6 class="text-muted text-uppercase fw-bold mb-2">Clients</h6>
+                                <h3 class="fw-bold">120</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Dernières activités</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped table-sm">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Utilisateur</th>
+                                <th scope="col">Action</th>
+                                <th scope="col">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1,001</td>
+                                <td>admin</td>
+                                <td>Mise à jour stock</td>
+                                <td>Il y a 1h</td>
+                            </tr>
+                              <tr>
+                                <td>1,002</td>
+                                <td>client_pierre</td>
+                                <td>Nouvelle commande</td>
+                                <td>Il y a 2h</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="js/js_bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="js/script.js"></script>
+</body>
+</html>
