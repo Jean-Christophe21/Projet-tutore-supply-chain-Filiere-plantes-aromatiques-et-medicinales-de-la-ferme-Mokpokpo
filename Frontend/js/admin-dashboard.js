@@ -615,25 +615,8 @@ async function loadSalesPredictions() {
         const data = await response.json();
         console.log('Sales predictions data:', data);
         
-        // Parse the data (it might be a string or object depending on API response)
-        let predictionText = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
-        
-        container.innerHTML = `
-            <div class="alert alert-info mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="16" x2="12" y2="12"></line>
-                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                </svg>
-                <strong>Prédictions générées par IA</strong> - Ces données sont calculées à partir des historiques de ventes et des tendances du marché.
-            </div>
-            <div class="card border-0 bg-light">
-                <div class="card-body">
-                    <h6 class="fw-bold mb-3">?? Résultats de la prédiction :</h6>
-                    <pre class="mb-0" style="white-space: pre-wrap; word-wrap: break-word;">${predictionText}</pre>
-                </div>
-            </div>
-        `;
+        // Parse and display sales predictions beautifully
+        container.innerHTML = renderSalesPredictions(data);
         
     } catch (error) {
         console.error('Error loading sales predictions:', error);
@@ -659,6 +642,158 @@ async function loadSalesPredictions() {
     }
 }
 
+// Render Sales Predictions with beautiful UI
+function renderSalesPredictions(data) {
+    // If data is a string, try to parse it
+    if (typeof data === 'string') {
+        try {
+            data = JSON.parse(data);
+        } catch (e) {
+            return `<div class="alert alert-warning">Format de donnees non reconnu</div>`;
+        }
+    }
+    
+    // Check if it has the expected structure
+    if (data && typeof data === 'object') {
+        const forecast = data.forecast_7_days || 0;
+        const trends = data.trends || 'Aucune tendance disponible';
+        const recommendations = data.recommendations || [];
+        const analysisText = data.analysis_text || 'Aucune analyse disponible';
+        
+        return `
+            <div class="alert alert-info mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <strong>Predictions IA</strong> - Analyse predictive basee sur l'historique des ventes et les tendances du marche
+            </div>
+            
+            <!-- Forecast Card -->
+            <div class="card border-0 shadow-lg mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body text-white p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="me-3" style="width: 64px; height: 64px; background: rgba(255,255,255,0.2); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                                        <polyline points="17 6 23 6 23 12"></polyline>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1 opacity-75">Prevision pour les 7 Prochains Jours</h6>
+                                    <h2 class="fw-bold mb-0">${forecast.toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} FCFA</h2>
+                                </div>
+                            </div>
+                            <p class="mb-0 opacity-90">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                                Chiffre d'affaires estime base sur les tendances actuelles
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div style="width: 120px; height: 120px; margin: 0 auto; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                <div style="font-size: 2.5rem;">??</div>
+                                <small class="opacity-75 mt-2">7 Jours</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Trends Analysis -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <h6 class="fw-bold mb-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                        </svg>
+                        Analyse des Tendances
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-light border-start border-4 border-primary">
+                        <p class="mb-0" style="line-height: 1.8;">${trends}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recommendations -->
+            ${recommendations.length > 0 ? `
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <h6 class="fw-bold mb-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                            </svg>
+                            Recommandations Strategiques
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group list-group-flush">
+                            ${recommendations.map((rec, index) => `
+                                <div class="list-group-item border-0 px-0">
+                                    <div class="d-flex align-items-start">
+                                        <div class="me-3" style="width: 40px; height: 40px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                            <span class="text-white fw-bold">${index + 1}</span>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <p class="mb-0" style="line-height: 1.7;">${rec}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            ` : ''}
+            
+            <!-- Analysis Details -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 py-3">
+                    <h6 class="fw-bold mb-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        Rapport d'Analyse Detaille
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-light border-start border-4 border-info">
+                        <p class="mb-0" style="line-height: 1.8;">${analysisText}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // If it's not the expected format, display as formatted text
+    return `
+        <div class="alert alert-info mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <strong>Predictions de Ventes</strong> - Analyse predictive generee par IA
+        </div>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <pre class="mb-0" style="white-space: pre-wrap; word-wrap: break-word;">${JSON.stringify(data, null, 2)}</pre>
+            </div>
+        </div>
+    `;
+}
+
 // Load Historical Data
 async function loadHistoricalData() {
     const container = document.getElementById('historicalDataList');
@@ -676,25 +811,8 @@ async function loadHistoricalData() {
         const data = await response.json();
         console.log('Historical data:', data);
         
-        // Parse the data (it might be a string or object depending on API response)
-        let historyText = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
-        
-        container.innerHTML = `
-            <div class="alert alert-info mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="16" x2="12" y2="12"></line>
-                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                </svg>
-                <strong>Données historiques</strong> - Historique complet des ventes et des stocks pour analyse.
-            </div>
-            <div class="card border-0 bg-light">
-                <div class="card-body">
-                    <h6 class="fw-bold mb-3">?? Données collectées :</h6>
-                    <pre class="mb-0" style="white-space: pre-wrap; word-wrap: break-word;">${historyText}</pre>
-                </div>
-            </div>
-        `;
+        // Parse and display historical data beautifully
+        container.innerHTML = renderHistoricalData(data);
         
     } catch (error) {
         console.error('Error loading historical data:', error);
@@ -718,4 +836,243 @@ async function loadHistoricalData() {
             </div>
         `;
     }
+}
+
+// Render Historical Data with beautiful UI
+function renderHistoricalData(data) {
+    // If data is a string, try to parse it
+    if (typeof data === 'string') {
+        try {
+            data = JSON.parse(data);
+        } catch (e) {
+            return `<div class="alert alert-warning">Format de donnees non reconnu</div>`;
+        }
+    }
+    
+    // Check if it's an array of historical data
+    if (Array.isArray(data)) {
+        // Calculate statistics
+        const totalDays = data.length;
+        const totalCA = data.reduce((sum, item) => sum + (item.ca || 0), 0);
+        const avgCA = totalCA / totalDays;
+        const maxCA = Math.max(...data.map(item => item.ca || 0));
+        const minCA = Math.min(...data.map(item => item.ca || 0));
+        
+        // Find best and worst days
+        const bestDay = data.find(item => item.ca === maxCA);
+        const worstDay = data.find(item => item.ca === minCA);
+        
+        return `
+            <div class="alert alert-info mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <strong>Donnees Historiques</strong> - Analyse des performances passees pour optimiser le stock
+            </div>
+            
+            <!-- Statistics Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <div class="card-body text-white text-center">
+                            <div class="mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                </svg>
+                            </div>
+                            <h3 class="fw-bold mb-0">${totalDays}</h3>
+                            <small class="opacity-75">Jours Analyses</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <div class="card-body text-white text-center">
+                            <div class="mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                </svg>
+                            </div>
+                            <h3 class="fw-bold mb-0">${totalCA.toLocaleString('fr-FR')}</h3>
+                            <small class="opacity-75">CA Total (FCFA)</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        <div class="card-body text-white text-center">
+                            <div class="mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                                    <polyline points="17 6 23 6 23 12"></polyline>
+                                </svg>
+                            </div>
+                            <h3 class="fw-bold mb-0">${avgCA.toFixed(0).toLocaleString('fr-FR')}</h3>
+                            <small class="opacity-75">CA Moyen/Jour</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                        <div class="card-body text-white text-center">
+                            <div class="mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                                </svg>
+                            </div>
+                            <h3 class="fw-bold mb-0">${((maxCA - minCA) / avgCA * 100).toFixed(0)}%</h3>
+                            <small class="opacity-75">Volatilite</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Best and Worst Days -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="me-3" style="width: 48px; height: 48px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-0">Meilleur Jour</h6>
+                                    <small class="text-muted">Performance maximale</small>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted small mb-1">Date</p>
+                                    <p class="fw-bold mb-0">${new Date(bestDay.date).toLocaleDateString('fr-FR', {day: 'numeric', month: 'long', year: 'numeric'})}</p>
+                                </div>
+                                <div class="text-end">
+                                    <p class="text-muted small mb-1">Chiffre d'Affaires</p>
+                                    <h4 class="text-success fw-bold mb-0">${maxCA.toLocaleString('fr-FR')} FCFA</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="me-3" style="width: 48px; height: 48px; background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-0">Jour le Plus Faible</h6>
+                                    <small class="text-muted">Opportunite d'amelioration</small>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted small mb-1">Date</p>
+                                    <p class="fw-bold mb-0">${new Date(worstDay.date).toLocaleDateString('fr-FR', {day: 'numeric', month: 'long', year: 'numeric'})}</p>
+                                </div>
+                                <div class="text-end">
+                                    <p class="text-muted small mb-1">Chiffre d'Affaires</p>
+                                    <h4 class="text-warning fw-bold mb-0">${minCA.toLocaleString('fr-FR')} FCFA</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Historical Data Timeline -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 py-3">
+                    <h6 class="fw-bold mb-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg>
+                        Historique Detaille
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Chiffre d'Affaires</th>
+                                    <th>Performance</th>
+                                    <th>Visualisation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.map(item => {
+                                    const percentage = (item.ca / maxCA) * 100;
+                                    const performanceClass = item.ca >= avgCA ? 'success' : item.ca >= avgCA * 0.5 ? 'warning' : 'danger';
+                                    const performanceText = item.ca >= avgCA ? 'Au-dessus' : item.ca >= avgCA * 0.5 ? 'Moyen' : 'En-dessous';
+                                    
+                                    return `
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2 text-muted">
+                                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                                                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                                                    </svg>
+                                                    <strong>${new Date(item.date).toLocaleDateString('fr-FR', {weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'})}</strong>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-primary px-3 py-2">${item.ca.toLocaleString('fr-FR')} FCFA</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-${performanceClass}">${performanceText}</span>
+                                            </td>
+                                            <td>
+                                                <div class="progress" style="height: 25px;">
+                                                    <div class="progress-bar bg-${performanceClass}" role="progressbar" style="width: ${percentage}%" aria-valuenow="${item.ca}" aria-valuemin="0" aria-valuemax="${maxCA}">
+                                                        ${percentage.toFixed(0)}%
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // If it's not an array, display as formatted text
+    return `
+        <div class="alert alert-info mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <strong>Donnees Historiques</strong> - Historique complet des ventes et des stocks
+        </div>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <pre class="mb-0" style="white-space: pre-wrap; word-wrap: break-word;">${JSON.stringify(data, null, 2)}</pre>
+            </div>
+        </div>
+    `;
 }
