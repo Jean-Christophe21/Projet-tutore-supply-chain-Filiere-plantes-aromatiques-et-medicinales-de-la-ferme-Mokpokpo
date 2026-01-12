@@ -166,6 +166,20 @@
                                     </div>
                                 </div>
                             </a>
+                            <a href="#predictions" class="list-group-item list-group-item-action border-0 py-3" data-section="predictions">
+                                <div class="d-flex align-items-center">
+                                    <div class="sidebar-icon me-3" style="background: linear-gradient(135deg, #ddd6fe, #c4b5fd); color: #8b5cf6;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                                            <polyline points="17 6 23 6 23 12"></polyline>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">Predictions Ventes</div>
+                                        <small class="text-muted">IA & Previsions</small>
+                                    </div>
+                                </div>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -365,6 +379,39 @@
                                 <div id="salesStatsList">
                                     <div class="text-center py-5">
                                         <p class="text-muted mb-0">S�lectionnez une p�riode pour voir les statistiques</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Predictions Section -->
+                    <div id="predictions-section" class="dashboard-section d-none">
+                        <div class="card border-0 shadow-sm rounded-4">
+                            <div class="card-header bg-white py-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="fw-bold mb-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                        </svg>
+                                        Predictions des Ventes (IA)
+                                    </h5>
+                                    <button class="btn btn-primary btn-sm" onclick="loadSalesPredictions()">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1">
+                                            <polyline points="23 4 23 10 17 10"></polyline>
+                                            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                                        </svg>
+                                        Actualiser
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div id="salesPredictionsList">
+                                    <div class="text-center py-5">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Chargement...</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

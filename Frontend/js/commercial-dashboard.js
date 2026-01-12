@@ -75,6 +75,8 @@ function initSectionNavigation() {
                     const firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
                     document.getElementById('startDate').value = firstDay;
                     document.getElementById('endDate').value = today;
+                } else if (sectionId === 'predictions') {
+                    loadSalesPredictions();
                 }
             }
         });
@@ -953,6 +955,73 @@ function showNotification(message, type = 'info') {
         notification.classList.add('animate__fadeOutUp');
         setTimeout(() => notification.remove(), 500);
     }, 3000);
+}
+
+// ===================================
+// PREDICTIONS - COMMERCIAL CAN SEE SALES PREDICTIONS
+// ===================================
+
+// Load Sales Predictions
+async function loadSalesPredictions() {
+    const token = localStorage.getItem('token');
+    const container = document.getElementById('salesPredictionsList');
+    
+    container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="text-muted mt-2">Chargement des predictions de ventes...</p></div>';
+    
+    try {
+        const response = await fetch(`${API_URL}/predictions/sales`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Erreur lors du chargement des predictions');
+        }
+        
+        const data = await response.json();
+        console.log('Sales predictions data:', data);
+        
+        // Parse the data (it might be a string or object depending on API response)
+        let predictionText = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+        
+        container.innerHTML = `
+            <div class="alert alert-info mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <strong>Predictions generees par IA</strong> - Ces donnees sont calculees a partir des historiques de ventes et des tendances du marche.
+            </div>
+            <div class="card border-0 bg-light">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">?? Resultats de la prediction :</h6>
+                    <pre class="mb-0" style="white-space: pre-wrap; word-wrap: break-word;">${predictionText}</pre>
+                </div>
+            </div>
+        `;
+        
+    } catch (error) {
+        console.error('Error loading sales predictions:', error);
+        container.innerHTML = `
+            <div class="alert alert-danger">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <strong>Erreur :</strong> ${error.message}
+            </div>
+            <div class="text-center py-3">
+                <button class="btn btn-primary" onclick="loadSalesPredictions()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                    </svg>
+                    Reessayer
+                </button>
+            </div>
+        `;
+    }
 }
 
 // Logout

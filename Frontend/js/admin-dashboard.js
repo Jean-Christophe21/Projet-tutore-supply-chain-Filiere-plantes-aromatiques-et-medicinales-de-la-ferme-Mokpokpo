@@ -99,6 +99,10 @@ function showSection(sectionName) {
             case 'alerts':
                 loadAlerts();
                 break;
+            case 'predictions':
+                loadSalesPredictions();
+                loadHistoricalData();
+                break;
         }
     }
 }
@@ -588,4 +592,130 @@ function showNotification(message, type = 'info') {
     setTimeout(() => {
         alertDiv.remove();
     }, 5000);
+}
+
+// ===================================
+// PREDICTIONS - ADMIN HAS ACCESS TO ALL
+// ===================================
+
+// Load Sales Predictions
+async function loadSalesPredictions() {
+    const container = document.getElementById('salesPredictionsList');
+    container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="text-muted mt-2">Chargement des prédictions de ventes...</p></div>';
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/predictions/sales`, {
+            headers: getAuthHeaders()
+        });
+        
+        if (!response.ok) {
+            throw new Error('Erreur lors du chargement des prédictions');
+        }
+        
+        const data = await response.json();
+        console.log('Sales predictions data:', data);
+        
+        // Parse the data (it might be a string or object depending on API response)
+        let predictionText = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+        
+        container.innerHTML = `
+            <div class="alert alert-info mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <strong>Prédictions générées par IA</strong> - Ces données sont calculées à partir des historiques de ventes et des tendances du marché.
+            </div>
+            <div class="card border-0 bg-light">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">?? Résultats de la prédiction :</h6>
+                    <pre class="mb-0" style="white-space: pre-wrap; word-wrap: break-word;">${predictionText}</pre>
+                </div>
+            </div>
+        `;
+        
+    } catch (error) {
+        console.error('Error loading sales predictions:', error);
+        container.innerHTML = `
+            <div class="alert alert-danger">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <strong>Erreur :</strong> ${error.message}
+            </div>
+            <div class="text-center py-3">
+                <button class="btn btn-primary" onclick="loadSalesPredictions()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                    </svg>
+                    Réessayer
+                </button>
+            </div>
+        `;
+    }
+}
+
+// Load Historical Data
+async function loadHistoricalData() {
+    const container = document.getElementById('historicalDataList');
+    container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="text-muted mt-2">Chargement des données historiques...</p></div>';
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/predictions/historical-data`, {
+            headers: getAuthHeaders()
+        });
+        
+        if (!response.ok) {
+            throw new Error('Erreur lors du chargement des données historiques');
+        }
+        
+        const data = await response.json();
+        console.log('Historical data:', data);
+        
+        // Parse the data (it might be a string or object depending on API response)
+        let historyText = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+        
+        container.innerHTML = `
+            <div class="alert alert-info mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <strong>Données historiques</strong> - Historique complet des ventes et des stocks pour analyse.
+            </div>
+            <div class="card border-0 bg-light">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">?? Données collectées :</h6>
+                    <pre class="mb-0" style="white-space: pre-wrap; word-wrap: break-word;">${historyText}</pre>
+                </div>
+            </div>
+        `;
+        
+    } catch (error) {
+        console.error('Error loading historical data:', error);
+        container.innerHTML = `
+            <div class="alert alert-danger">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <strong>Erreur :</strong> ${error.message}
+            </div>
+            <div class="text-center py-3">
+                <button class="btn btn-primary" onclick="loadHistoricalData()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                    </svg>
+                    Réessayer
+                </button>
+            </div>
+        `;
+    }
 }

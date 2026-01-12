@@ -77,6 +77,8 @@ function initSectionNavigation() {
                     loadMovements();
                 } else if (sectionId === 'alerts') {
                     loadAlerts();
+                } else if (sectionId === 'predictions') {
+                    loadHistoricalData();
                 }
             }
         });
@@ -602,6 +604,73 @@ function showNotification(message, type = 'info') {
         notification.classList.add('animate__fadeOutUp');
         setTimeout(() => notification.remove(), 500);
     }, 3000);
+}
+
+// ===================================
+// PREDICTIONS - STOCK MANAGER CAN SEE HISTORICAL DATA
+// ===================================
+
+// Load Historical Data
+async function loadHistoricalData() {
+    const token = localStorage.getItem('token');
+    const container = document.getElementById('historicalDataList');
+    
+    container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="text-muted mt-2">Chargement des donnees historiques...</p></div>';
+    
+    try {
+        const response = await fetch(`${API_URL}/predictions/historical-data`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Erreur lors du chargement des donnees historiques');
+        }
+        
+        const data = await response.json();
+        console.log('Historical data:', data);
+        
+        // Parse the data (it might be a string or object depending on API response)
+        let historyText = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+        
+        container.innerHTML = `
+            <div class="alert alert-info mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <strong>Donnees historiques</strong> - Historique complet des ventes et des stocks pour analyse.
+            </div>
+            <div class="card border-0 bg-light">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">?? Donnees collectees :</h6>
+                    <pre class="mb-0" style="white-space: pre-wrap; word-wrap: break-word;">${historyText}</pre>
+                </div>
+            </div>
+        `;
+        
+    } catch (error) {
+        console.error('Error loading historical data:', error);
+        container.innerHTML = `
+            <div class="alert alert-danger">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <strong>Erreur :</strong> ${error.message}
+            </div>
+            <div class="text-center py-3">
+                <button class="btn btn-primary" onclick="loadHistoricalData()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                    </svg>
+                    Reessayer
+                </button>
+            </div>
+        `;
+    }
 }
 
 // Logout
