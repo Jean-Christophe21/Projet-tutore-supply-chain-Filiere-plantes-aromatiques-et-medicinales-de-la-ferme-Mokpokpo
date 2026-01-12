@@ -160,26 +160,42 @@ async function handleRoleLogin(form, expectedRole = null) {
                 // Decode JWT to get user info
                 const decodedToken = decodeJWT(data.access_token);
                 console.log('Decoded token:', decodedToken);
+                console.log('All token keys:', Object.keys(decodedToken || {}));
                 
                 if (!decodedToken) {
-                    throw new Error('Impossible de dÈcoder le token JWT');
+                    throw new Error('Impossible de d√©coder le token JWT');
                 }
                 
-                // Extract user info from token
+                // Extract user info from token - check multiple possible field names
+                const rawRole = decodedToken.role || decodedToken.user_role || decodedToken.type_utilisateur || decodedToken.type;
+                
+                // Normalize role to uppercase to handle case variations
+                const normalizedRole = rawRole ? rawRole.toString().toUpperCase().trim() : null;
+                
                 const user = {
-                    id: decodedToken.sub || decodedToken.user_id || decodedToken.id,
-                    email: decodedToken.email || email,
-                    role: decodedToken.role || decodedToken.user_role,
-                    nom: decodedToken.nom || decodedToken.name,
-                    prenom: decodedToken.prenom || decodedToken.first_name
+                    id: decodedToken.sub || decodedToken.user_id || decodedToken.id || decodedToken.id_utilisateur,
+                    email: decodedToken.email || decodedToken.mail || email,
+                    role: normalizedRole,
+                    nom: decodedToken.nom || decodedToken.name || decodedToken.last_name || decodedToken.lastname,
+                    prenom: decodedToken.prenom || decodedToken.first_name || decodedToken.firstname || decodedToken.given_name
                 };
                 
                 console.log('User info extracted from token:', user);
+                console.log('Raw role from token:', rawRole);
+                console.log('Normalized role:', normalizedRole);
+                console.log('Expected role:', expectedRole);
+                
+                // Validate that role exists
+                if (!user.role) {
+                    console.error('‚ùå NO ROLE FOUND IN TOKEN! Token payload:', decodedToken);
+                    throw new Error('Le token JWT ne contient pas d\'information de r√¥le. V√©rifiez la configuration du backend.');
+                }
                 
                 // Check if role matches expected role (if specified)
                 if (expectedRole && user.role !== expectedRole) {
+                    console.warn(`‚ùå Role mismatch! Expected: ${expectedRole}, Got: ${user.role}`);
                     if (errorDiv && errorMessage) {
-                        errorMessage.textContent = `AccËs refusÈ. Cette page est rÈservÈe aux ${getRoleName(expectedRole)}.`;
+                        errorMessage.textContent = `Acc√®s refus√©. Cette page est r√©serv√©e aux ${getRoleName(expectedRole)}.`;
                         errorDiv.classList.remove('d-none');
                     }
                     if (submitBtn) {
@@ -192,17 +208,26 @@ async function handleRoleLogin(form, expectedRole = null) {
                 // Save to appropriate storage based on role
                 saveAuthData(data.access_token, user);
                 
+                // Mark that we just logged in (to handle timing issues)
+                sessionStorage.setItem('justLoggedIn', 'true');
+                
+                console.log('‚úÖ Auth data saved successfully');
+                console.log('Storage type:', getStorageType(user.role) === sessionStorage ? 'sessionStorage' : 'localStorage');
+                console.log('Saved user:', getCurrentUser());
+                console.log('Saved token:', getToken());
+                
                 // Success animation
                 if (submitBtn) {
                     submitBtn.className = submitBtn.className.replace(/btn-primary/g, 'btn-success').replace(/btn-danger/g, 'btn-success');
-                    submitBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2"><polyline points="20 6 9 17 4 12"></polyline></svg>Connexion rÈussie!';
+                    submitBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2"><polyline points="20 6 9 17 4 12"></polyline></svg>Connexion r√©ussie!';
                 }
                 
-                // Redirect based on user role
+                // Wait for UI animation then redirect
                 setTimeout(() => {
                     const redirectUrl = ROLE_REDIRECTS[user.role] || 'index.html';
+                    console.log('üîÑ Redirecting to:', redirectUrl);
                     window.location.href = redirectUrl;
-                }, 1000);
+                }, 1500);
             } else {
                 const data = await response.json().catch(() => ({ detail: 'Erreur inconnue' }));
                 console.error('Login failed:', response.status, data);
@@ -211,11 +236,11 @@ async function handleRoleLogin(form, expectedRole = null) {
                     let errorText = '';
                     
                     if (response.status === 404) {
-                        errorText = 'Service de connexion introuvable. VÈrifiez que le backend est dÈmarrÈ.';
+                        errorText = 'Service de connexion introuvable. V√©rifiez que le backend est d√©marr√©.';
                     } else if (response.status === 401) {
                         errorText = 'Email ou mot de passe incorrect';
                     } else if (response.status === 422) {
-                        errorText = 'Format de donnÈes invalide';
+                        errorText = 'Format de donn√©es invalide';
                     } else {
                         errorText = data.detail || 'Identifiant ou mot de passe incorrect';
                     }
@@ -230,9 +255,9 @@ async function handleRoleLogin(form, expectedRole = null) {
                 let errorText = '';
                 
                 if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-                    errorText = 'Impossible de contacter le serveur. VÈrifiez que le backend est dÈmarrÈ sur https://bd-mokpokokpo.onrender.com';
+                    errorText = 'Impossible de contacter le serveur. V√©rifiez que le backend est d√©marr√© sur https://bd-mokpokokpo.onrender.com';
                 } else if (error.name === 'TypeError') {
-                    errorText = 'Erreur de connexion au serveur. Le backend peut Ítre en cours de dÈmarrage (cold start). Veuillez patienter 30 secondes et rÈessayer.';
+                    errorText = 'Erreur de connexion au serveur. Le backend peut √™tre en cours de d√©marrage (cold start). Veuillez patienter 30 secondes et r√©essayer.';
                 } else {
                     errorText = 'Erreur de connexion: ' + error.message;
                 }
@@ -294,44 +319,83 @@ function initClientLogin() {
 
 // Check if user is authenticated and has correct role for current page
 function checkPageAccess(requiredRole) {
+    console.log('üîê checkPageAccess called with requiredRole:', requiredRole);
+    
     const token = getToken();
     const currentUser = getCurrentUser();
     
+    console.log('Token found:', token ? 'Yes' : 'No');
+    console.log('Current user:', currentUser);
+    
     // Get current page
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    console.log('Current page:', currentPage);
     
     if (!token || !currentUser) {
-        // Not logged in, redirect to appropriate login page
-        const loginPages = {
-            'ADMIN': 'admin-login.html',
-            'GEST_STOCK': 'stock-login.html',
-            'GEST_COMMERCIAL': 'commercial-login.html',
-            'CLIENT': 'login.html'
-        };
+        console.warn('‚ùå No token or user found, redirecting to login');
         
-        // Don't redirect if already on a login page or index
-        if (!currentPage.includes('login.html') && currentPage !== 'index.html' && currentPage !== 'register.html') {
-            window.location.href = loginPages[requiredRole] || 'login.html';
+        // Special handling: if we just logged in, wait a bit before redirecting
+        // This prevents race conditions where storage isn't ready yet
+        const isJustLoggedIn = sessionStorage.getItem('justLoggedIn') === 'true';
+        if (isJustLoggedIn) {
+            console.log('‚è≥ Just logged in, waiting for storage to sync...');
+            sessionStorage.removeItem('justLoggedIn');
+            // Try again after a short delay
+            setTimeout(() => {
+                const retryToken = getToken();
+                const retryUser = getCurrentUser();
+                if (retryToken && retryUser) {
+                    console.log('‚úÖ Storage now available after retry');
+                    // Reload the page to try again
+                    window.location.reload();
+                } else {
+                    // Still no data, proceed with redirect to login
+                    redirectToLogin(requiredRole, currentPage);
+                }
+            }, 500);
+            return false;
         }
+        
+        redirectToLogin(requiredRole, currentPage);
         return false;
     }
     
+    
     // Check if user has the required role
     if (requiredRole && currentUser.role !== requiredRole) {
+        console.error(`‚ùå Role mismatch in checkPageAccess! Required: ${requiredRole}, Got: ${currentUser.role}`);
         // Wrong role for this page, redirect to their correct dashboard
-        alert(`AccËs refusÈ. Vous n'avez pas les permissions nÈcessaires pour accÈder ‡ cette page.`);
+        alert(`Acc√®s refus√©. Vous n'avez pas les permissions n√©cessaires pour acc√©der √† cette page.`);
         window.location.href = ROLE_REDIRECTS[currentUser.role] || 'index.html';
         return false;
     }
     
     // Additional check: verify if current page is in allowed pages for user role
     if (!isPageAllowedForRole(currentUser.role, currentPage)) {
-        alert(`AccËs refusÈ. Cette page n'est pas accessible avec votre rÙle.`);
+        console.error(`‚ùå Page not allowed for role ${currentUser.role}: ${currentPage}`);
+        alert(`Acc√®s refus√©. Cette page n'est pas accessible avec votre r√¥le.`);
         window.location.href = ROLE_REDIRECTS[currentUser.role] || 'index.html';
         return false;
     }
     
+    console.log('‚úÖ Access granted for', currentUser.role, 'to', currentPage);
     return true;
+}
+
+// Helper function to redirect to appropriate login page
+function redirectToLogin(requiredRole, currentPage) {
+    const loginPages = {
+        'ADMIN': 'admin-login.html',
+        'GEST_STOCK': 'stock-login.html',
+        'GEST_COMMERCIAL': 'commercial-login.html',
+        'CLIENT': 'login.html'
+    };
+    
+    // Don't redirect if already on a login page or index
+    if (!currentPage.includes('login.html') && currentPage !== 'index.html' && currentPage !== 'register.html') {
+        console.log('Redirecting to:', loginPages[requiredRole] || 'login.html');
+        window.location.href = loginPages[requiredRole] || 'login.html';
+    }
 }
 
 // Verify access for any page (can be called without required role)
@@ -348,7 +412,7 @@ function verifyAccess() {
     // If user is logged in, check if they can access this page
     if (currentUser) {
         if (!isPageAllowedForRole(currentUser.role, currentPage)) {
-            alert(`AccËs refusÈ. Cette page n'est pas accessible avec votre rÙle.`);
+            alert(`Acc√®s refus√©. Cette page n'est pas accessible avec votre r√¥le.`);
             window.location.href = ROLE_REDIRECTS[currentUser.role] || 'index.html';
             return false;
         }

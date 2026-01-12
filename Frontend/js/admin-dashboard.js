@@ -7,7 +7,7 @@ const API_BASE_URL = 'https://bd-mokpokokpo.onrender.com';
 // AUTHENTICATION & UTILS
 // ===================================
 function getAuthHeaders() {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token') || localStorage.getItem('token');
     return {
         'Content-Type': 'application/json',
         'Authorization': token ? `Bearer ${token}` : ''
@@ -15,14 +15,29 @@ function getAuthHeaders() {
 }
 
 function checkAuth() {
-    const token = localStorage.getItem('token');
-    const userRole = localStorage.getItem('userRole');
+    const token = sessionStorage.getItem('token') || localStorage.getItem('token');
+    const currentUserStr = sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser');
     
-    if (!token || userRole !== 'ADMIN') {
-        window.location.href = 'login.html';
+    if (!token || !currentUserStr) {
+        console.warn('? No authentication found');
+        window.location.href = 'admin-login.html';
         return false;
     }
-    return true;
+    
+    try {
+        const currentUser = JSON.parse(currentUserStr);
+        if (currentUser.role !== 'ADMIN') {
+            console.warn('? Not an admin:', currentUser.role);
+            window.location.href = 'admin-login.html';
+            return false;
+        }
+        console.log('? Admin authentication verified');
+        return true;
+    } catch (error) {
+        console.error('Error parsing user data:', error);
+        window.location.href = 'admin-login.html';
+        return false;
+    }
 }
 
 // ===================================
@@ -89,16 +104,29 @@ function showSection(sectionName) {
 }
 
 function updateUserDisplay() {
-    const userEmail = localStorage.getItem('userEmail') || 'Admin';
+    const currentUserStr = sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser');
+    let displayName = 'Admin';
+    
+    if (currentUserStr) {
+        try {
+            const currentUser = JSON.parse(currentUserStr);
+            displayName = currentUser.prenom || currentUser.email?.split('@')[0] || 'Admin';
+        } catch (error) {
+            console.error('Error parsing user data:', error);
+        }
+    }
+    
     const displayElement = document.getElementById('userNameDisplay');
     if (displayElement) {
-        displayElement.textContent = userEmail.split('@')[0];
+        displayElement.textContent = displayName;
     }
 }
 
 function logout() {
+    // Clear both storages
+    sessionStorage.clear();
     localStorage.clear();
-    window.location.href = 'login.html';
+    window.location.href = 'admin-login.html';
 }
 
 // ===================================

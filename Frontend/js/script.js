@@ -1,6 +1,5 @@
 // Mokpokpo Frontend Logic
-
-const API_URL = 'https://bd-mokpokokpo.onrender.com';
+// API_URL is defined in auth.js
 
 document.addEventListener('DOMContentLoaded', () => {
     updateCartCount();

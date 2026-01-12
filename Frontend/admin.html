@@ -523,14 +523,29 @@
     <script src="js/script.js"></script>
     <script src="js/admin-dashboard.js"></script>
     <script>
-        // Check access on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            checkPageAccess('ADMIN');
+        // Wait for page to fully load and storage to be ready
+        window.addEventListener('load', () => {
+            console.log('🔍 Admin page loaded, checking access...');
+            console.log('SessionStorage token:', sessionStorage.getItem('token') ? 'Present' : 'Missing');
+            console.log('SessionStorage user:', sessionStorage.getItem('currentUser'));
+            
+            // Give extra time for storage synchronization
+            setTimeout(() => {
+                const hasAccess = checkPageAccess('ADMIN');
+                if (hasAccess) {
+                    console.log('✅ Admin access granted - Loading dashboard');
+                    // Load dashboard data only after access is confirmed
+                    if (typeof loadDashboardStats === 'function') {
+                        loadDashboardStats();
+                    }
+                } else {
+                    console.error('❌ Admin access denied');
+                }
+            }, 200);
         });
         
         // Prevent caching for this page
         window.addEventListener('beforeunload', function() {
-            // Clear page from cache
             if (window.performance && window.performance.navigation.type === window.performance.navigation.TYPE_BACK_FORWARD) {
                 window.location.reload();
             }
@@ -540,6 +555,12 @@
         history.pushState(null, null, location.href);
         window.onpopstate = function () {
             history.go(1);
+        };
+        
+        // Fix logout button
+        document.querySelector('.btn-outline-light').onclick = function(e) {
+            e.preventDefault();
+            logout();
         };
     </script>
 </body>
