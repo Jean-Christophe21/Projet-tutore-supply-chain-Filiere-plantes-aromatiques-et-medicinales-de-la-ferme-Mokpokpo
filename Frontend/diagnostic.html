@@ -9,11 +9,11 @@
 </head>
 <body>
     <div class="container py-5">
-        <h1 class="mb-4">?? Diagnostic du Système d'Authentification</h1>
+        <h1 class="mb-4">?? Diagnostic du Systï¿½me d'Authentification</h1>
         
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">État du LocalStorage</h5>
+                <h5 class="mb-0">ï¿½tat du LocalStorage</h5>
             </div>
             <div class="card-body">
                 <div class="mb-3">
@@ -37,10 +37,10 @@
 
         <div class="card mb-4">
             <div class="card-header bg-success text-white">
-                <h5 class="mb-0">Test d'Accès au Dashboard</h5>
+                <h5 class="mb-0">Test d'Accï¿½s au Dashboard</h5>
             </div>
             <div class="card-body">
-                <button class="btn btn-primary mb-3" onclick="testDashboardAccess()">Tester l'accès au Dashboard</button>
+                <button class="btn btn-primary mb-3" onclick="testDashboardAccess()">Tester l'accï¿½s au Dashboard</button>
                 <div id="dashboard-test-result"></div>
             </div>
         </div>
@@ -51,24 +51,24 @@
             </div>
             <div class="card-body">
                 <div class="d-flex gap-2 flex-wrap">
-                    <button class="btn btn-outline-primary" onclick="window.location.href='login.html'">Aller à la Connexion</button>
+                    <button class="btn btn-outline-primary" onclick="window.location.href='login.html'">Aller ï¿½ la Connexion</button>
                     <button class="btn btn-outline-success" onclick="window.location.href='dashboard.html'">Aller au Dashboard</button>
                     <button class="btn btn-outline-warning" onclick="clearAll()">Vider tout le LocalStorage</button>
-                    <button class="btn btn-outline-info" onclick="location.reload()">Rafraîchir</button>
+                    <button class="btn btn-outline-info" onclick="location.reload()">Rafraï¿½chir</button>
                 </div>
             </div>
         </div>
 
         <div class="card">
             <div class="card-header bg-warning">
-                <h5 class="mb-0">Guide de Dépannage</h5>
+                <h5 class="mb-0">Guide de Dï¿½pannage</h5>
             </div>
             <div class="card-body">
                 <ol>
-                    <li class="mb-2"><strong>Si vous voyez "Token: null"</strong> ? Vous n'êtes pas connecté. Allez sur login.html</li>
-                    <li class="mb-2"><strong>Si le token existe mais le dashboard redirige</strong> ? Le token est peut-être expiré. Reconnectez-vous.</li>
-                    <li class="mb-2"><strong>Si "Utilisateur: null"</strong> ? Déconnectez-vous et reconnectez-vous</li>
-                    <li class="mb-2"><strong>Si le clic sur profil ne fonctionne pas</strong> ? Vérifiez que vous êtes sur une page avec la bonne navbar</li>
+                    <li class="mb-2"><strong>Si vous voyez "Token: null"</strong> ? Vous n'ï¿½tes pas connectï¿½. Allez sur login.html</li>
+                    <li class="mb-2"><strong>Si le token existe mais le dashboard redirige</strong> ? Le token est peut-ï¿½tre expirï¿½. Reconnectez-vous.</li>
+                    <li class="mb-2"><strong>Si "Utilisateur: null"</strong> ? Dï¿½connectez-vous et reconnectez-vous</li>
+                    <li class="mb-2"><strong>Si le clic sur profil ne fonctionne pas</strong> ? Vï¿½rifiez que vous ï¿½tes sur une page avec la bonne navbar</li>
                 </ol>
             </div>
         </div>
@@ -83,8 +83,8 @@
             // Token
             const token = localStorage.getItem('token');
             document.getElementById('token-status').textContent = token 
-                ? `? Présent (${token.substring(0, 50)}...)` 
-                : '? Absent - Vous n\'êtes pas connecté';
+                ? `? Prï¿½sent (${token.substring(0, 50)}...)` 
+                : '? Absent - Vous n\'ï¿½tes pas connectï¿½';
 
             // User
             const currentUser = localStorage.getItem('currentUser');
@@ -114,8 +114,8 @@
             if (!token) {
                 resultDiv.innerHTML = `
                     <div class="alert alert-danger">
-                        ? Aucun token trouvé. Vous devez vous connecter d'abord.
-                        <a href="login.html" class="alert-link">Aller à la connexion</a>
+                        ? Aucun token trouvï¿½. Vous devez vous connecter d'abord.
+                        <a href="login.html" class="alert-link">Aller ï¿½ la connexion</a>
                     </div>
                 `;
                 return;
@@ -132,16 +132,16 @@
                     const user = await response.json();
                     resultDiv.innerHTML = `
                         <div class="alert alert-success">
-                            ? Token valide ! Connecté en tant que: ${user.prenom} ${user.nom} (${user.email})
+                            ? Token valide ! Connectï¿½ en tant que: ${user.prenom} ${user.nom} (${user.email})
                             <br><a href="dashboard.html" class="alert-link mt-2 d-inline-block">Aller au Dashboard maintenant</a>
                         </div>
                     `;
                 } else {
                     resultDiv.innerHTML = `
                         <div class="alert alert-danger">
-                            ? Token invalide ou expiré (Status: ${response.status})
+                            ? Token invalide ou expirï¿½ (Status: ${response.status})
                             <br>Veuillez vous reconnecter.
-                            <a href="login.html" class="alert-link">Aller à la connexion</a>
+                            <a href="login.html" class="alert-link">Aller ï¿½ la connexion</a>
                         </div>
                     `;
                     localStorage.removeItem('token');
@@ -151,16 +151,16 @@
                 resultDiv.innerHTML = `
                     <div class="alert alert-danger">
                         ? Erreur de connexion au serveur: ${error.message}
-                        <br>Vérifiez votre connexion internet.
+                        <br>Vï¿½rifiez votre connexion internet.
                     </div>
                 `;
             }
         }
 
         function clearAll() {
-            if (confirm('Êtes-vous sûr de vouloir vider tout le localStorage ? Cela vous déconnectera.')) {
+            if (confirm('ï¿½tes-vous sï¿½r de vouloir vider tout le localStorage ? Cela vous dï¿½connectera.')) {
                 localStorage.clear();
-                alert('LocalStorage vidé !');
+                alert('LocalStorage vidï¿½ !');
                 location.reload();
             }
         }
