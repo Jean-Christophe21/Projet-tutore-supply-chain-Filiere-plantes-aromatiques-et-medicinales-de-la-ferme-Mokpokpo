@@ -171,22 +171,23 @@ function updateCartCount() {
 
 // Simple authentication check placeholder
 function checkAuth() {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token') || localStorage.getItem('token');
+    const currentUserSession = sessionStorage.getItem('currentUser');
+    const currentUserLocal = localStorage.getItem('currentUser');
+    const currentUser = currentUserSession ? JSON.parse(currentUserSession) : (currentUserLocal ? JSON.parse(currentUserLocal) : null);
+    
     const authLinks = document.getElementById('auth-links');
     const userLinks = document.getElementById('user-links');
     
     if (authLinks && userLinks) {
-        if (token) {
+        if (token && currentUser) {
             authLinks.classList.add('d-none');
             userLinks.classList.remove('d-none');
             
             // Load user name if available
-            const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
-            if (currentUser) {
-                const userNameDisplay = document.getElementById('userNameDisplay');
-                if (userNameDisplay) {
-                    userNameDisplay.textContent = currentUser.prenom || 'Mon Compte';
-                }
+            const userNameDisplay = document.getElementById('userNameDisplay');
+            if (userNameDisplay) {
+                userNameDisplay.textContent = currentUser.prenom || 'Mon Compte';
             }
         } else {
             authLinks.classList.remove('d-none');
@@ -197,8 +198,14 @@ function checkAuth() {
 
 // Add logout function
 function logout() {
+    // Clear all auth data
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('currentUser');
     localStorage.removeItem('token');
-    window.location.reload();
+    localStorage.removeItem('currentUser');
+    
+    // Redirect to home
+    window.location.href = 'index.html';
 }
 
 function handleRegister(form) {

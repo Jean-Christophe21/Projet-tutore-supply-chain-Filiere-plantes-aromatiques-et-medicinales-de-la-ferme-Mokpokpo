@@ -51,15 +51,7 @@
                     <div class="mb-3">
                         <label for="password" class="form-label">Mot de passe</label>
                         <input type="password" class="form-control" id="password" required>
-                    </div>
-                     <div class="mb-3">
-                        <label for="type" class="form-label">Je suis</label>
-                        <select class="form-select" id="type">
-                            <option value="client">Client</option>
-                            <option value="commercial">Commercial</option>
-                            <option value="stock">Gestionnaire de Stock</option>
-                        </select>
-                         <div class="form-text">Pour le projet, choisissez votre rôle librement.</div>
+                        <div class="form-text">Minimum 6 caractères</div>
                     </div>
 
                     <div class="d-grid gap-2 mt-4">
@@ -78,6 +70,85 @@
     </div>
 
     <script src="js/js_bootstrap/bootstrap.bundle.min.js"></script>
-    <script src="js/script.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        const API_URL = 'https://bd-mokpokokpo.onrender.com';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('registerForm');
+            if (form) {
+                handleClientRegister(form);
+            }
+        });
+
+        function handleClientRegister(form) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const firstName = document.getElementById('firstName').value;
+                const lastName = document.getElementById('lastName').value;
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                const errorDiv = document.getElementById('registerError');
+                const submitBtn = form.querySelector('button[type="submit"]');
+
+                if (errorDiv) errorDiv.classList.add('d-none');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Inscription...';
+                }
+
+                // Only allow CLIENT role registration
+                const payload = {
+                    nom: lastName,
+                    prenom: firstName,
+                    email: email,
+                    mot_de_passe: password,
+                    role: 'CLIENT'
+                };
+
+                try {
+                    const response = await fetch(`${API_URL}/utilisateurs/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        // Success animation
+                        if (submitBtn) {
+                            submitBtn.classList.remove('btn-primary');
+                            submitBtn.classList.add('btn-success');
+                            submitBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2"><polyline points="20 6 9 17 4 12"></polyline></svg>Inscription réussie!';
+                        }
+                        
+                        setTimeout(() => {
+                            window.location.href = 'login.html';
+                        }, 1500);
+                    } else {
+                        const data = await response.json();
+                        if (errorDiv) {
+                            errorDiv.textContent = data.detail || 'Erreur lors de l\'inscription';
+                            errorDiv.classList.remove('d-none');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    if (errorDiv) {
+                        errorDiv.textContent = 'Impossible de contacter le serveur.';
+                        errorDiv.classList.remove('d-none');
+                    }
+                } finally {
+                    if (submitBtn && !submitBtn.classList.contains('btn-success')) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'S\'inscrire';
+                    }
+                }
+            });
+        }
+    </script>
 </body>
 </html>

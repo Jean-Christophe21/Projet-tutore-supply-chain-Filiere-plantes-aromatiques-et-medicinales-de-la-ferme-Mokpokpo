@@ -34,7 +34,7 @@
                         <a class="nav-link" href="products.html">Catalogue</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="about.html">À propos</a>
+                        <a class="nav-link" href="about.html">ï¿½ propos</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="contact.html">Contact</a>
@@ -64,7 +64,7 @@
                         </a>
                         <button onclick="logout()" class="btn btn-outline-danger btn-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                            Déconnexion
+                            Dï¿½connexion
                         </button>
                     </div>
                 </div>
@@ -197,7 +197,7 @@
                                     <div class="stat-card-content">
                                         <p class="stat-card-label">Total Commandes</p>
                                         <h3 class="stat-card-value" id="totalOrders">0</h3>
-                                        <p class="stat-card-description">Commandes passées</p>
+                                        <p class="stat-card-description">Commandes passï¿½es</p>
                                     </div>
                                 </div>
                             </div>
@@ -226,7 +226,7 @@
                                         </svg>
                                     </div>
                                     <div class="stat-card-content">
-                                        <p class="stat-card-label">Total Dépensé</p>
+                                        <p class="stat-card-label">Total Dï¿½pensï¿½</p>
                                         <h3 class="stat-card-value"><span id="totalSpent">0</span> FCFA</h3>
                                         <p class="stat-card-description">Toutes commandes</p>
                                     </div>
@@ -242,7 +242,7 @@
                                         <circle cx="12" cy="12" r="10"></circle>
                                         <polyline points="12 6 12 12 16 14"></polyline>
                                     </svg>
-                                    Commandes Récentes
+                                    Commandes Rï¿½centes
                                 </h5>
                             </div>
                             <div class="card-body">
@@ -322,7 +322,7 @@
                                 <form id="profileForm">
                                     <div class="row g-3">
                                         <div class="col-md-6">
-                                            <label class="form-label fw-semibold">Prénom</label>
+                                            <label class="form-label fw-semibold">Prï¿½nom</label>
                                             <input type="text" class="form-control" id="profileFirstName" readonly>
                                         </div>
                                         <div class="col-md-6">
@@ -334,7 +334,7 @@
                                             <input type="email" class="form-control" id="profileEmail" readonly>
                                         </div>
                                         <div class="col-12">
-                                            <label class="form-label fw-semibold">Rôle</label>
+                                            <label class="form-label fw-semibold">Rï¿½le</label>
                                             <input type="text" class="form-control" id="profileRole" readonly>
                                         </div>
                                     </div>
@@ -361,19 +361,26 @@
                         </div>
                         <span class="fw-bold fs-5">Mokpokpo</span>
                     </div>
-                    <p class="text-muted mb-3">Votre partenaire de confiance pour des plantes et produits agricoles naturels de qualité au Togo.</p>
+                    <p class="text-muted mb-3">Votre partenaire de confiance pour des plantes et produits agricoles naturels de qualitï¿½ au Togo.</p>
                 </div>
             </div>
         </div>
         <div class="border-top">
             <div class="container py-3">
-                <p class="text-center text-muted mb-0">© 2025 Mokpokpo. Tous droits réservés.</p>
+                <p class="text-center text-muted mb-0">ï¿½ 2025 Mokpokpo. Tous droits rï¿½servï¿½s.</p>
             </div>
         </div>
     </footer>
 
     <script src="js/js_bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="js/auth.js"></script>
     <script src="js/script.js"></script>
     <script src="js/dashboard.js"></script>
+    <script>
+        // Check access on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            checkPageAccess('CLIENT');
+        });
+    </script>
 </body>
 </html>

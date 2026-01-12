@@ -82,7 +82,7 @@ function initSectionNavigation() {
 // Load User Info
 async function loadUserInfo() {
     try {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token') || localStorage.getItem('token');
         
         if (!token) {
             console.error('No token available');

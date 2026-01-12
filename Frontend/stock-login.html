@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion - Mokpokpo</title>
+    <title>Connexion Gestionnaire de Stock - Mokpokpo</title>
     <link rel="stylesheet" href="css/css_bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="login-page">
 
-    <!-- Navbar (Simplified for Auth pages) -->
+    <!-- Navbar -->
     <nav class="navbar navbar-light bg-white border-bottom fixed-top shadow-sm">
         <div class="container justify-content-center">
             <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
@@ -33,17 +33,16 @@
             <div class="card-body p-5">
                 <!-- Logo Icon -->
                 <div class="d-flex justify-content-center mb-4">
-                    <div class="login-logo-container">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
-                            <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+                    <div class="login-logo-container" style="background: linear-gradient(135deg, #a855f7, #d8b4fe);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                         </svg>
                     </div>
                 </div>
 
                 <div class="text-center mb-4">
-                    <h2 class="fw-bold mb-2">Connexion Client</h2>
-                    <p class="text-muted mb-0">AccÃ©dez Ã  votre espace client</p>
+                    <h2 class="fw-bold mb-2">Connexion Gestionnaire de Stock</h2>
+                    <p class="text-muted mb-0">Accédez à la gestion des stocks</p>
                 </div>
                 
                 <div id="loginError" class="alert alert-danger d-none rounded-3 d-flex align-items-start" role="alert">
@@ -55,37 +54,35 @@
                     <span id="errorMessage"></span>
                 </div>
 
-                <form id="loginForm" class="mb-4">
+                <form id="stockLoginForm" class="mb-4">
                     <div class="mb-4">
                         <label for="email" class="form-label fw-medium">Email</label>
-                        <input type="email" class="form-control form-control-lg rounded-3 input-modern" id="email" placeholder="vous@exemple.com" required>
+                        <input type="email" class="form-control form-control-lg rounded-3 input-modern" id="email" placeholder="stock@mokpokpo.tg" required>
                     </div>
                     <div class="mb-4">
                         <label for="password" class="form-label fw-medium">Mot de passe</label>
-                        <input type="password" class="form-control form-control-lg rounded-3 input-modern" id="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required>
+                        <input type="password" class="form-control form-control-lg rounded-3 input-modern" id="password" placeholder="••••••••" required>
                     </div>
                     <div class="d-grid gap-2 mb-3">
-                        <button type="submit" class="btn btn-primary btn-lg rounded-3 btn-modern">Se connecter</button>
+                        <button type="submit" class="btn btn-lg rounded-3 btn-modern" style="background: linear-gradient(135deg, #a855f7, #d8b4fe); color: white; border: none;">Se connecter</button>
                     </div>
                 </form>
 
-                <div class="text-center mb-4">
+                <div class="text-center">
                     <p class="small text-muted mb-0">
-                        Vous n'avez pas de compte? 
-                        <a href="register.html" class="text-primary fw-semibold text-decoration-none link-hover">S'inscrire</a>
+                        <a href="index.html" class="text-muted text-decoration-none">? Retour à l'accueil</a>
                     </p>
                 </div>
+            </div>
+        </div>
 
-                <div class="position-relative my-4">
-                    <hr class="text-muted">
-                    <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small">Autres connexions</span>
-                </div>
-
-                <div class="d-flex flex-column gap-2">
-                    <a href="admin-login.html" class="btn btn-outline-danger btn-sm">Connexion Administrateur</a>
-                    <a href="stock-login.html" class="btn btn-outline-secondary btn-sm">Connexion Gestionnaire de Stock</a>
-                    <a href="commercial-login.html" class="btn btn-outline-warning btn-sm">Connexion Commercial</a>
-                </div>
+        <!-- Alternative logins -->
+        <div class="mt-4 text-center">
+            <p class="text-muted small mb-2">Connexion pour :</p>
+            <div class="d-flex gap-2 justify-content-center">
+                <a href="admin-login.html" class="btn btn-outline-secondary btn-sm">Administrateur</a>
+                <a href="commercial-login.html" class="btn btn-outline-secondary btn-sm">Commercial</a>
+                <a href="login.html" class="btn btn-outline-secondary btn-sm">Client</a>
             </div>
         </div>
     </div>
@@ -94,7 +91,7 @@
     <script src="js/auth.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            initClientLogin();
+            initStockLogin();
         });
     </script>
 </body>

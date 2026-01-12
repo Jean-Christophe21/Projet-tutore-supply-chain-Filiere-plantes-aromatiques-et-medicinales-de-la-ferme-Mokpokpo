@@ -32,5 +32,25 @@
         </div>
     </div>
     <script src="js/js_bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Check access on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            checkPageAccess('GEST_STOCK');
+        });
+        
+        // Prevent caching for this page
+        window.addEventListener('beforeunload', function() {
+            if (window.performance && window.performance.navigation.type === window.performance.navigation.TYPE_BACK_FORWARD) {
+                window.location.reload();
+            }
+        });
+        
+        // Disable back button functionality
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            history.go(1);
+        };
+    </script>
 </body>
 </html>
