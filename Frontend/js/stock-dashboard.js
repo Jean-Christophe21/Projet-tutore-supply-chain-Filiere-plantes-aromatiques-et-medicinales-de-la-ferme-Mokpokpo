@@ -1,0 +1,612 @@
+// Stock Dashboard Logic for Mokpokpo
+
+const API_URL = 'https://bd-mokpokokpo.onrender.com';
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Check authentication
+    const token = localStorage.getItem('token');
+    if (!token) {
+        console.warn('No token found, redirecting to login');
+        alert('Vous devez vous connecter pour accéder à cette page.');
+        window.location.href = 'login.html';
+        return;
+    }
+
+    // Check if user is stock manager
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    if (currentUser.role !== 'GEST_STOCK') {
+        alert('Accès réservé aux gestionnaires de stock.');
+        window.location.href = 'dashboard.html';
+        return;
+    }
+
+    // Initialize dashboard
+    loadUserInfo();
+    initSectionNavigation();
+    loadDashboardStats();
+    loadProductsForHarvest();
+    initHarvestForm();
+    
+    // Auto-refresh every 30 seconds
+    setInterval(() => {
+        loadDashboardStats();
+        
+        // Refresh current section
+        const activeSection = document.querySelector('.list-group-item-action.active');
+        if (activeSection) {
+            const sectionId = activeSection.getAttribute('data-section');
+            if (sectionId === 'stocks') loadStocks();
+            else if (sectionId === 'alerts') loadAlerts();
+        }
+    }, 30000);
+});
+
+// Section Navigation
+function initSectionNavigation() {
+    const navLinks = document.querySelectorAll('[data-section]');
+    
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            // Remove active class from all links
+            navLinks.forEach(l => l.classList.remove('active'));
+            
+            // Add active class to clicked link
+            link.classList.add('active');
+            
+            // Hide all sections
+            document.querySelectorAll('.dashboard-section').forEach(section => {
+                section.classList.add('d-none');
+            });
+            
+            // Show selected section
+            const sectionId = link.getAttribute('data-section');
+            const sectionElement = document.getElementById(`${sectionId}-section`);
+            
+            if (sectionElement) {
+                sectionElement.classList.remove('d-none');
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                // Load section data
+                if (sectionId === 'stocks') {
+                    loadStocks();
+                } else if (sectionId === 'movements') {
+                    loadMovements();
+                } else if (sectionId === 'alerts') {
+                    loadAlerts();
+                }
+            }
+        });
+    });
+}
+
+// Load User Info
+function loadUserInfo() {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const userNameDisplay = document.getElementById('userNameDisplay');
+    
+    if (userNameDisplay && currentUser.prenom) {
+        userNameDisplay.textContent = currentUser.prenom;
+    }
+}
+
+// Load Dashboard Stats
+async function loadDashboardStats() {
+    const token = localStorage.getItem('token');
+    
+    try {
+        // Load stocks
+        const stocksResponse = await fetch(`${API_URL}/stocks/`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (stocksResponse.ok) {
+            const stocks = await stocksResponse.json();
+            
+            // Count stocked products
+            const stockedProducts = stocks.filter(s => s.quantite_stock > 0);
+            animateValue('totalStockedProducts', 0, stockedProducts.length, 800);
+            
+            // Count alerts (products with low stock)
+            const alerts = stocks.filter(s => s.seuil_alerte && s.quantite_stock <= s.seuil_alerte);
+            animateValue('totalAlerts', 0, alerts.length, 800);
+            document.getElementById('alertsBadge').textContent = alerts.length;
+            
+            // Add pulse animation to alerts badge if there are alerts
+            const alertsBadge = document.getElementById('alertsBadge');
+            if (alerts.length > 0) {
+                alertsBadge.classList.add('badge-pulse');
+            } else {
+                alertsBadge.classList.remove('badge-pulse');
+            }
+        }
+
+        // Calculate monthly stock movements from commandes and ventes
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+        
+        // Get sales (sorties)
+        const ventesResponse = await fetch(`${API_URL}/ventes/`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (ventesResponse.ok) {
+            const ventes = await ventesResponse.json();
+            const monthlyExits = ventes.filter(v => {
+                const vDate = new Date(v.date_vente);
+                return vDate.getMonth() === currentMonth && vDate.getFullYear() === currentYear;
+            }).reduce((sum, v) => sum + (v.quantite_vendue || 0), 0);
+            
+            animateValue('monthlyExits', 0, monthlyExits, 800);
+        }
+        
+        // Estimate entries based on current stock levels
+        // In a real app, you'd have a dedicated endpoint for this
+        const totalStock = stocks.reduce((sum, s) => sum + s.quantite_stock, 0);
+        animateValue('monthlyEntries', 0, Math.floor(totalStock * 0.15), 800); // Estimated
+        
+    } catch (error) {
+        console.error('Error loading dashboard stats:', error);
+        showNotification('Erreur lors du chargement des statistiques', 'danger');
+    }
+}
+
+// Animate number counting
+function animateValue(id, start, end, duration) {
+    const element = document.getElementById(id);
+    if (!element) return;
+    
+    const range = end - start;
+    const increment = range / (duration / 16); // 60 FPS
+    let current = start;
+    
+    const timer = setInterval(() => {
+        current += increment;
+        if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+            current = end;
+            clearInterval(timer);
+        }
+        element.textContent = Math.floor(current);
+    }, 16);
+}
+
+// Load Stocks
+async function loadStocks() {
+    const token = localStorage.getItem('token');
+    const stocksList = document.getElementById('stocksList');
+    
+    stocksList.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="text-muted mt-2">Chargement des stocks...</p></div>';
+    
+    try {
+        const [stocksResponse, productsResponse] = await Promise.all([
+            fetch(`${API_URL}/stocks/`, { headers: { 'Authorization': `Bearer ${token}` } }),
+            fetch(`${API_URL}/produits/`, { headers: { 'Authorization': `Bearer ${token}` } })
+        ]);
+        
+        if (!stocksResponse.ok) throw new Error('Erreur lors du chargement');
+        
+        const stocks = await stocksResponse.json();
+        const products = productsResponse.ok ? await productsResponse.json() : [];
+        
+        if (stocks.length === 0) {
+            stocksList.innerHTML = `
+                <div class="text-center py-5">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" class="text-muted mb-3">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    </svg>
+                    <p class="text-muted">Aucun stock trouvé</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Sort stocks: alerts first, then by quantity
+        stocks.sort((a, b) => {
+            const aIsAlert = a.seuil_alerte && a.quantite_stock <= a.seuil_alerte;
+            const bIsAlert = b.seuil_alerte && b.quantite_stock <= b.seuil_alerte;
+            
+            if (aIsAlert && !bIsAlert) return -1;
+            if (!aIsAlert && bIsAlert) return 1;
+            return b.quantite_stock - a.quantite_stock;
+        });
+        
+        stocksList.innerHTML = stocks.map(stock => {
+            const product = products.find(p => p.id_produit === stock.id_produit);
+            const productName = product ? product.nom_produit : `Produit #${stock.id_produit}`;
+            const productScientific = product ? product.nom_scientifique : '';
+            
+            // Calculate stock level percentage
+            const maxStock = stock.seuil_alerte * 3 || 100;
+            const stockPercentage = Math.min((stock.quantite_stock / maxStock) * 100, 100);
+            
+            let statusColor = 'success';
+            let statusIcon = '?';
+            let statusText = 'Stock Normal';
+            let cardBorder = '';
+            
+            if (stock.quantite_stock === 0) {
+                statusColor = 'danger';
+                statusIcon = '?';
+                statusText = 'Rupture de Stock';
+                cardBorder = 'border-danger';
+            } else if (stock.seuil_alerte && stock.quantite_stock <= stock.seuil_alerte) {
+                statusColor = 'danger';
+                statusIcon = '??';
+                statusText = 'Stock Critique';
+                cardBorder = 'border-warning';
+            } else if (stock.seuil_alerte && stock.quantite_stock <= stock.seuil_alerte * 1.5) {
+                statusColor = 'warning';
+                statusIcon = '?';
+                statusText = 'Stock Faible';
+            }
+            
+            return `
+                <div class="card mb-3 border stock-card ${cardBorder}">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-7">
+                                <div class="d-flex align-items-start gap-3">
+                                    <div class="stock-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <h5 class="fw-bold mb-0">?? ${productName}</h5>
+                                                ${productScientific ? `<p class="text-muted fst-italic small mb-0">${productScientific}</p>` : ''}
+                                                <p class="text-muted small mb-0">ID Stock: ${stock.id_stock}</p>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <small class="text-muted">Niveau de stock</small>
+                                                <small class="fw-semibold text-${statusColor}">${Math.round(stockPercentage)}%</small>
+                                            </div>
+                                            <div class="progress" style="height: 10px;">
+                                                <div class="progress-bar bg-${statusColor}" role="progressbar" 
+                                                     style="width: ${stockPercentage}%; transition: width 0.6s ease;" 
+                                                     aria-valuenow="${stock.quantite_stock}" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="${maxStock}"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="row g-3 h-100">
+                                    <div class="col-6">
+                                        <div class="text-center p-3 bg-light rounded">
+                                            <h3 class="fw-bold text-primary mb-1">${stock.quantite_stock}</h3>
+                                            <p class="text-muted small mb-0">En Stock</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="text-center p-3 bg-light rounded">
+                                            <h3 class="fw-bold text-secondary mb-1">${stock.seuil_alerte || 'N/A'}</h3>
+                                            <p class="text-muted small mb-0">Seuil Alerte</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="d-flex align-items-center justify-content-between p-2 bg-${statusColor} bg-opacity-10 rounded">
+                                            <span>${statusIcon} <strong>${statusText}</strong></span>
+                                            ${statusColor !== 'success' ? `
+                                                <button class="btn btn-sm btn-${statusColor}" onclick="goToRestock(${stock.id_produit})">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1">
+                                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                                    </svg>
+                                                    Réapprovisionner
+                                                </button>
+                                            ` : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+    } catch (error) {
+        console.error('Error loading stocks:', error);
+        stocksList.innerHTML = `
+            <div class="alert alert-danger">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                Erreur lors du chargement des stocks
+            </div>
+        `;
+    }
+}
+
+// Go to restock section with product pre-selected
+function goToRestock(productId) {
+    document.querySelector('[data-section="harvest"]').click();
+    setTimeout(() => {
+        document.getElementById('harvestProduct').value = productId;
+        document.getElementById('movementType').value = 'ENTREE';
+        document.getElementById('harvestQuantity').focus();
+    }, 300);
+}
+
+// Load Products for Harvest Form
+async function loadProductsForHarvest() {
+    const token = localStorage.getItem('token');
+    const select = document.getElementById('harvestProduct');
+    
+    try {
+        const response = await fetch(`${API_URL}/produits`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+            const products = await response.json();
+            
+            select.innerHTML = '<option value="">Sélectionner un produit...</option>' + 
+                products.map(p => `<option value="${p.id_produit}">${p.nom_produit}</option>`).join('');
+        }
+    } catch (error) {
+        console.error('Error loading products:', error);
+    }
+}
+
+// Initialize Harvest Form
+function initHarvestForm() {
+    const form = document.getElementById('harvestForm');
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.innerHTML;
+    
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const token = localStorage.getItem('token');
+        const productId = parseInt(document.getElementById('harvestProduct').value);
+        const quantity = parseInt(document.getElementById('harvestQuantity').value);
+        const movementType = document.getElementById('movementType').value);
+        
+        if (!productId || !quantity) {
+            showNotification('Veuillez remplir tous les champs', 'warning');
+            return;
+        }
+        
+        if (quantity < 1) {
+            showNotification('La quantité doit être supérieure à 0', 'warning');
+            return;
+        }
+        
+        // Show loading state\n        submitButton.disabled = true;
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Enregistrement...';
+        
+        try {
+            // Get or create stock for this product
+            const stocksResponse = await fetch(`${API_URL}/stocks/`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (!stocksResponse.ok) throw new Error('Erreur lors de la vérification du stock');
+            
+            const stocks = await stocksResponse.json();
+            let stock = stocks.find(s => s.id_produit === productId);
+            
+            if (!stock) {
+                // Create new stock entry
+                const createResponse = await fetch(`${API_URL}/stocks/`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id_produit: productId,
+                        quantite_stock: movementType === 'ENTREE' ? quantity : 0,
+                        seuil_alerte: 10,
+                        date_derniere_maj: new Date().toISOString()
+                    })
+                });
+                
+                if (!createResponse.ok) {
+                    const error = await createResponse.text();
+                    throw new Error('Erreur lors de la création du stock: ' + error);
+                }
+                
+                stock = await createResponse.json();
+                showNotification(`? Stock créé avec succès: ${quantity} unités ajoutées`, 'success');
+            } else {
+                // Update existing stock
+                const newQuantity = movementType === 'ENTREE' 
+                    ? stock.quantite_stock + quantity 
+                    : Math.max(0, stock.quantite_stock - quantity);
+                
+                if (movementType === 'SORTIE' && quantity > stock.quantite_stock) {
+                    showNotification('?? Quantité insuffisante en stock', 'warning');
+                    return;
+                }
+                
+                const updateResponse = await fetch(`${API_URL}/stocks/${stock.id_stock}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ...stock,
+                        quantite_stock: newQuantity,
+                        date_derniere_maj: new Date().toISOString()
+                    })
+                });
+                
+                if (!updateResponse.ok) {
+                    const error = await updateResponse.text();
+                    throw new Error('Erreur lors de la mise à jour du stock: ' + error);
+                }
+                
+                const movementTypeText = movementType === 'ENTREE' ? 'ajoutées' : 'retirées';
+                const newStockText = newQuantity === 0 ? ' ?? Stock épuisé!' : ` (Stock: ${newQuantity})`;
+                showNotification(`? ${quantity} unités ${movementTypeText}${newStockText}`, 'success');
+            }
+            
+            // Reset form and reload data
+            form.reset();
+            loadDashboardStats();
+            
+            // Show success animation
+            form.classList.add('animate__animated', 'animate__pulse');
+            setTimeout(() => {
+                form.classList.remove('animate__animated', 'animate__pulse');
+            }, 1000);
+            
+        } catch (error) {
+            console.error('Error recording movement:', error);
+            showNotification('? Erreur lors de l\'enregistrement: ' + error.message, 'danger');
+        } finally {
+            // Restore button state
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonText;
+        }
+    });
+}
+
+// Load Movements (Mock implementation - requires movement history endpoint)
+function loadMovements() {
+    const movementsList = document.getElementById('movementsList');
+    
+    movementsList.innerHTML = `
+        <div class="alert alert-info">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            L'historique détaillé des mouvements sera disponible prochainement.
+        </div>
+        <div class="text-center py-5">
+            <p class="text-muted">Utilisez la section "Enregistrer Récolte" pour ajouter de nouveaux mouvements de stock.</p>
+        </div>
+    `;
+}
+
+// Load Alerts
+async function loadAlerts() {
+    const token = localStorage.getItem('token');
+    const alertsList = document.getElementById('alertsList');
+    
+    alertsList.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+    
+    try {
+        // Get stocks with low levels
+        const stocksResponse = await fetch(`${API_URL}/stocks/`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!stocksResponse.ok) throw new Error('Erreur lors du chargement');
+        
+        const stocks = await stocksResponse.json();
+        const lowStocks = stocks.filter(s => s.seuil_alerte && s.quantite_stock <= s.seuil_alerte);
+        
+        // Get products details
+        const productsResponse = await fetch(`${API_URL}/produits`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        const products = productsResponse.ok ? await productsResponse.json() : [];
+        
+        if (lowStocks.length === 0) {
+            alertsList.innerHTML = `
+                <div class="alert alert-success">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Aucune alerte de stock bas. Tous les stocks sont à des niveaux normaux !
+                </div>
+            `;
+            return;
+        }
+        
+        alertsList.innerHTML = lowStocks.map(stock => {
+            const product = products.find(p => p.id_produit === stock.id_produit);
+            const productName = product ? product.nom_produit : `Produit #${stock.id_produit}`;
+            
+            const urgency = stock.quantite_stock === 0 ? 'danger' : 
+                           stock.quantite_stock < stock.seuil_alerte / 2 ? 'danger' : 'warning';
+            
+            return `
+                <div class="alert alert-${urgency} d-flex align-items-center mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-3">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1 fw-bold">${productName}</h6>
+                        <p class="mb-0">
+                            Stock actuel: <strong>${stock.quantite_stock}</strong> unités
+                            ${stock.quantite_stock === 0 ? ' - <strong>RUPTURE DE STOCK</strong>' : ''}
+                        </p>
+                        <p class="mb-0 small">Seuil d'alerte: ${stock.seuil_alerte} unités</p>
+                    </div>
+                    <button class="btn btn-outline-${urgency === 'danger' ? 'danger' : 'warning'} btn-sm" 
+                            onclick="document.querySelector('[data-section=harvest]').click()">
+                        Réapprovisionner
+                    </button>
+                </div>
+            `;
+        }).join('');
+        
+        // Also create or update alerts in database
+        for (const stock of lowStocks) {
+            try {
+                const product = products.find(p => p.id_produit === stock.id_produit);
+                await fetch(`${API_URL}/alertes-stock/`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id_produit: stock.id_produit,
+                        seuil: stock.seuil_alerte,
+                        message: `Stock bas pour ${product ? product.nom_produit : 'produit #' + stock.id_produit}`
+                    })
+                });
+            } catch (error) {
+                console.error('Error creating alert:', error);
+            }
+        }
+        
+    } catch (error) {
+        console.error('Error loading alerts:', error);
+        alertsList.innerHTML = '<div class="alert alert-danger">Erreur lors du chargement des alertes</div>';
+    }
+}
+
+// Show Notification
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} position-fixed top-0 start-50 translate-middle-x mt-3 shadow-lg animate__animated animate__fadeInDown`;
+    notification.style.zIndex = '9999';
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.classList.add('animate__fadeOutUp');
+        setTimeout(() => notification.remove(), 500);
+    }, 3000);
+}
+
+// Logout
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('currentUser');
+    window.location.href = 'login.html';
+}

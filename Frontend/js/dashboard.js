@@ -29,6 +29,8 @@ function initSectionNavigation() {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             
+            console.log('Navigation clicked:', link.getAttribute('data-section'));
+            
             // Remove active class from all links
             navLinks.forEach(l => l.classList.remove('active'));
             
@@ -42,16 +44,39 @@ function initSectionNavigation() {
             
             // Show selected section
             const sectionId = link.getAttribute('data-section');
-            document.getElementById(`${sectionId}-section`).classList.remove('d-none');
+            const sectionElement = document.getElementById(`${sectionId}-section`);
             
-            // Reload specific section data
-            if (sectionId === 'cart') {
-                loadCart();
-            } else if (sectionId === 'orders') {
-                loadOrders();
+            if (sectionElement) {
+                sectionElement.classList.remove('d-none');
+                
+                // Scroll to top of section
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+                
+                // Reload specific section data
+                if (sectionId === 'cart') {
+                    loadCart();
+                } else if (sectionId === 'orders') {
+                    loadOrders();
+                } else if (sectionId === 'overview') {
+                    loadDashboardStats();
+                }
+            } else {
+                console.error(`Section ${sectionId}-section not found`);
             }
         });
     });
+    
+    // Handle hash navigation on page load
+    const hash = window.location.hash.substring(1);
+    if (hash) {
+        const link = document.querySelector(`[data-section="${hash}"]`);
+        if (link) {
+            link.click();
+        }
+    }
 }
 
 // Load User Info
@@ -77,20 +102,33 @@ async function loadUserInfo() {
             const user = await response.json();
             console.log('User info loaded:', user.email);
             
-            // Update user display
-            document.getElementById('dashboardUserName').textContent = `${user.prenom} ${user.nom}`;
-            document.getElementById('dashboardUserEmail').textContent = user.email;
-            
+            // Update user display with proper encoding
+            const dashboardUserName = document.getElementById('dashboardUserName');
+            const dashboardUserEmail = document.getElementById('dashboardUserEmail');
             const userNameDisplay = document.getElementById('userNameDisplay');
+            
+            if (dashboardUserName) {
+                dashboardUserName.textContent = `${user.prenom || ''} ${user.nom || ''}`;
+            }
+            
+            if (dashboardUserEmail) {
+                dashboardUserEmail.textContent = user.email || '';
+            }
+            
             if (userNameDisplay) {
-                userNameDisplay.textContent = user.prenom;
+                userNameDisplay.textContent = user.prenom || 'Mon Compte';
             }
             
             // Update profile form
-            document.getElementById('profileFirstName').value = user.prenom;
-            document.getElementById('profileLastName').value = user.nom;
-            document.getElementById('profileEmail').value = user.email;
-            document.getElementById('profileRole').value = user.role;
+            const profileFirstName = document.getElementById('profileFirstName');
+            const profileLastName = document.getElementById('profileLastName');
+            const profileEmail = document.getElementById('profileEmail');
+            const profileRole = document.getElementById('profileRole');
+            
+            if (profileFirstName) profileFirstName.value = user.prenom || '';
+            if (profileLastName) profileLastName.value = user.nom || '';
+            if (profileEmail) profileEmail.value = user.email || '';
+            if (profileRole) profileRole.value = user.role || '';
             
             // Store user data
             localStorage.setItem('currentUser', JSON.stringify(user));
@@ -107,7 +145,22 @@ async function loadUserInfo() {
         }
     } catch (error) {
         console.error('Error loading user info:', error);
-        alert('Erreur de connexion au serveur. Veuillez réessayer.');
+        // Try to load from localStorage as fallback
+        const cachedUser = localStorage.getItem('currentUser');
+        if (cachedUser) {
+            try {
+                const user = JSON.parse(cachedUser);
+                const dashboardUserName = document.getElementById('dashboardUserName');
+                const dashboardUserEmail = document.getElementById('dashboardUserEmail');
+                const userNameDisplay = document.getElementById('userNameDisplay');
+                
+                if (dashboardUserName) dashboardUserName.textContent = `${user.prenom || ''} ${user.nom || ''}`;
+                if (dashboardUserEmail) dashboardUserEmail.textContent = user.email || '';
+                if (userNameDisplay) userNameDisplay.textContent = user.prenom || 'Mon Compte';
+            } catch (e) {
+                console.error('Error parsing cached user:', e);
+            }
+        }
     }
 }
 
@@ -133,8 +186,21 @@ function loadDashboardStats() {
 function loadRecentOrders(orders) {
     const recentOrdersList = document.getElementById('recentOrdersList');
     
-    if (orders.length === 0) {
-        recentOrdersList.innerHTML = '<p class="text-muted text-center py-4">Aucune commande pour le moment</p>';
+    if (!recentOrdersList) {
+        console.error('recentOrdersList element not found');
+        return;
+    }
+    
+    if (!orders || orders.length === 0) {
+        recentOrdersList.innerHTML = `
+            <div class="text-center py-5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-muted mb-3">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                </svg>
+                <p class="text-muted mb-0">Aucune commande pour le moment</p>
+            </div>
+        `;
         return;
     }
     
@@ -145,13 +211,17 @@ function loadRecentOrders(orders) {
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <div>
                     <h6 class="fw-bold mb-1">Commande #${order.id}</h6>
-                    <p class="text-muted small mb-0">${new Date(order.date).toLocaleDateString('fr-FR')}</p>
+                    <p class="text-muted small mb-0">${new Date(order.date).toLocaleDateString('fr-FR', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    })}</p>
                 </div>
                 <span class="badge bg-${getStatusColor(order.status)}">${order.status}</span>
             </div>
             <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted">${order.items.length} article(s)</span>
-                <span class="fw-bold text-success">${order.total.toLocaleString()} FCFA</span>
+                <span class="fw-bold text-success">${order.total.toLocaleString('fr-FR')} FCFA</span>
             </div>
         </div>
     `).join('');
@@ -333,7 +403,7 @@ function loadOrders() {
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
                         <h5 class="fw-bold mb-1">Commande #${order.id}</h5>
-                        <p class="text-muted small mb-0">
+                    <p class="text-muted small mb-0">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1">
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <polyline points="12 6 12 12 16 14"></polyline>
@@ -344,7 +414,7 @@ function loadOrders() {
                                 day: 'numeric',
                                 hour: '2-digit',
                                 minute: '2-digit'
-                            })}
+                            }).replace(/?/g, 'é')}
                         </p>
                     </div>
                     <span class="badge bg-${getStatusColor(order.status)} px-3 py-2">${order.status}</span>
@@ -390,13 +460,20 @@ function updateAllCartCounts() {
 function showNotification(message, type = 'info') {
     // Create notification element
     const notification = document.createElement('div');
-    notification.className = `alert alert-${type} position-fixed top-0 start-50 translate-middle-x mt-3 shadow-lg`;
+    notification.className = `alert alert-${type} position-fixed top-0 start-50 translate-middle-x mt-3 shadow-lg animate__animated animate__fadeInDown`;
     notification.style.zIndex = '9999';
+    
+    const icons = {
+        success: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>',
+        info: '<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line>',
+        warning: '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line>',
+        danger: '<circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line>'
+    };
+    
     notification.innerHTML = `
         <div class="d-flex align-items-center">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                ${icons[type] || icons.info}
             </svg>
             ${message}
         </div>
@@ -404,8 +481,9 @@ function showNotification(message, type = 'info') {
     
     document.body.appendChild(notification);
     
-    // Auto remove after 3 seconds
+    // Auto remove after 3 seconds with fade out animation
     setTimeout(() => {
-        notification.remove();
+        notification.classList.add('animate__fadeOutUp');
+        setTimeout(() => notification.remove(), 500);
     }, 3000);
 }

@@ -125,7 +125,14 @@ function handleLogin(form) {
                 }
                 
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                    // Redirect based on user role
+                    if (user.role === 'GEST_COMMERCIAL') {
+                        window.location.href = 'commercial-dashboard.html';
+                    } else if (user.role === 'GEST_STOCK') {
+                        window.location.href = 'stock-dashboard.html';
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
                 }, 1000);
             } else {
                 const data = await response.json();
@@ -458,12 +465,12 @@ function displayFilteredProducts(products, allProducts) {
                 </div>
                 <div class="product-info">
                     <h5 class="product-title">${product.nom_produit}</h5>
-                    <p class="product-scientific mb-2">${product.nom_scientifique || 'Non specifie'}</p>
+                    <p class="product-scientific mb-2">${product.nom_scientifique || 'Non spécifié'}</p>
                     <p class="product-description mb-3">${product.description || 'Aucune description disponible'}</p>
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <div class="product-price">${product.prix_unitaire} FCFA</div>
-                            <div class="product-stock">Stock: ${product.quantite_stock || 0} unites</div>
+                            <div class="product-stock">Stock: ${product.quantite_stock || 0} unités</div>
                         </div>
                     </div>
                 </div>
