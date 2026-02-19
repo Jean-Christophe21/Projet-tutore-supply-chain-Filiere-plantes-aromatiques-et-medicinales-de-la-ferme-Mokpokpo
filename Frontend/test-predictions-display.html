@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test - Affichage des Pr�dictions</title>
+    <title>Test - Affichage des Prédictions</title>
     <link rel="stylesheet" href="css/css_bootstrap/bootstrap.min.css">
     <style>
         body { padding: 20px; background: #f8f9fa; }
@@ -19,12 +19,12 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="mb-4">?? Test d'Affichage des Pr�dictions</h1>
+        <h1 class="mb-4">?? Test d'Affichage des Prédictions</h1>
         
         <!-- Test Predictions -->
         <div class="test-section">
             <div class="test-header">
-                <h2 class="mb-0">?? Test 1: Pr�dictions de Ventes</h2>
+                <h2 class="mb-0">?? Test 1: Prédictions de Ventes</h2>
             </div>
             <div id="testPredictions"></div>
         </div>
@@ -32,7 +32,7 @@
         <!-- Test Historical Data -->
         <div class="test-section">
             <div class="test-header">
-                <h2 class="mb-0">?? Test 2: Donn�es Historiques</h2>
+                <h2 class="mb-0">?? Test 2: Données Historiques</h2>
             </div>
             <div id="testHistorical"></div>
         </div>
@@ -40,7 +40,7 @@
         <!-- Test Empty Data -->
         <div class="test-section">
             <div class="test-header">
-                <h2 class="mb-0">?? Test 3: Donn�es Vides</h2>
+                <h2 class="mb-0">?? Test 3: Données Vides</h2>
             </div>
             <div id="testEmpty"></div>
         </div>
@@ -50,14 +50,14 @@
         // Sample data for predictions
         const samplePredictions = {
             forecast_7_days: 763.63,
-            trends: "Les donn�es indiquent une forte saisonnalit� des ventes concentr�e sur la p�riode des f�tes de fin d'ann�e (du 15 au 29 d�cembre), avec un pic de CA enregistr� le 29 d�cembre (355.0). Il est notable que les ventes chutent significativement et montrent une plus grande volatilit� apr�s le Nouvel An (d�but janvier). La tendance g�n�rale hors pic saisonnier est un CA journalier moyen autour de 109.09.",
+            trends: "Les données indiquent une forte saisonnalité des ventes concentrée sur la période des fètes de fin d'année (du 15 au 29 décembre), avec un pic de CA enregistré le 29 décembre (355.0). Il est notable que les ventes chutent significativement et montrent une plus grande volatilité aprés le Nouvel An (début janvier). La tendance générale hors pic saisonnier est un CA journalier moyen autour de 109.09.",
             recommendations: [
-                "Prioriser la production et le stockage du Miel et du Poulet, car ils repr�sentent clairement les produits phares de la ferme (32 et 28 unit�s vendues respectivement).",
-                "Planifier des promotions ou des offres sp�ciales durant les p�riodes creuses (comme apr�s le Nouvel An) pour stabiliser le CA journalier et maintenir l'engagement client.",
-                "D�buter la planification et l'augmentation des stocks pour la prochaine saison de forte demande (No�l/Nouvel An) d�s le trimestre pr�c�dent, en ciblant une disponibilit� maximale des produits les plus chers durant cette fen�tre.",
-                "Mettre en place un suivi pr�cis de la date d'expiration pour le Poulet (produit frais) afin de minimiser le gaspillage, en particulier lorsque les ventes ralentissent."
+                "Prioriser la production et le stockage du Miel et du Poulet, car ils représentent clairement les produits phares de la ferme (32 et 28 unités vendues respectivement).",
+                "Planifier des promotions ou des offres spéciales durant les périodes creuses (comme après le Nouvel An) pour stabiliser le CA journalier et maintenir l'engagement client.",
+                "Débuter la planification et l'augmentation des stocks pour la prochaine saison de forte demande (Noël/Nouvel An) dès le trimestre précédent, en ciblant une disponibilité maximale des produits les plus chers durant cette fenètre.",
+                "Mettre en place un suivi précis de la date d'expiration pour le Poulet (produit frais) afin de minimiser le gaspillage, en particulier lorsque les ventes ralentissent."
             ],
-            analysis_text: "L'analyse des ventes sur la p�riode observ�e (30 jours) r�v�le un Chiffre d'Affaires total de 1200.0, fortement influenc� par la saison des f�tes. Le pic de CA et la forte demande de Miel et de Poulet sont les �l�ments commerciaux dominants. Notre pr�vision conservatrice pour les 7 prochains jours est bas�e sur la moyenne des jours de vente observ�s (environ 109.09 par jour), refl�tant la stabilisation des ventes apr�s l'effervescence de la fin d'ann�e."
+            analysis_text: "L'analyse des ventes sur la période observée (30 jours) revèle un Chiffre d'Affaires total de 1200.0, fortement influencé par la saison des fêtes. Le pic de CA et la forte demande de Miel et de Poulet sont les éléments commerciaux dominants. Notre prévision conservatrice pour les 7 prochains jours est basée sur la moyenne des jours de vente observés (environ 109.09 par jour), reflétant la stabilisation des ventes après l'effervescence de la fin d'année."
         };
         
         // Sample data for historical
@@ -79,7 +79,7 @@
         function renderSalesPredictions(data) {
             if (typeof data === 'string') {
                 try { data = JSON.parse(data); } 
-                catch (e) { return '<div class="alert alert-warning">Format de donn�es non reconnu</div>'; }
+                catch (e) { return '<div class="alert alert-warning">Format de données non reconnu</div>'; }
             }
             
             if (data && typeof data === 'object') {
@@ -95,7 +95,7 @@
                             <line x1="12" y1="16" x2="12" y2="12"></line>
                             <line x1="12" y1="8" x2="12.01" y2="8"></line>
                         </svg>
-                        <strong>Pr�dictions IA</strong> - Analyse pr�dictive bas�e sur l'historique des ventes
+                        <strong>Prédictions IA</strong> - Analyse prédictive basée sur l'historique des ventes
                     </div>
                     
                     <div class="card border-0 shadow-lg mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
@@ -110,7 +110,7 @@
                                             </svg>
                                         </div>
                                         <div>
-                                            <h6 class="mb-1 opacity-75">Pr�vision pour les 7 Prochains Jours</h6>
+                                            <h6 class="mb-1 opacity-75">Prévision pour les 7 Prochains Jours</h6>
                                             <h2 class="fw-bold mb-0">${forecast.toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} FCFA</h2>
                                         </div>
                                     </div>
@@ -139,7 +139,7 @@
                     ${recommendations.length > 0 ? `
                         <div class="card border-0 shadow-sm mb-4">
                             <div class="card-header bg-white border-0 py-3">
-                                <h6 class="fw-bold mb-0">?? Recommandations Strat�giques</h6>
+                                <h6 class="fw-bold mb-0">?? Recommandations Stratégiques</h6>
                             </div>
                             <div class="card-body">
                                 <div class="list-group list-group-flush">
@@ -162,7 +162,7 @@
                     
                     <div class="card border-0 shadow-sm">
                         <div class="card-header bg-white border-0 py-3">
-                            <h6 class="fw-bold mb-0">?? Rapport d'Analyse D�taill�</h6>
+                            <h6 class="fw-bold mb-0">?? Rapport d'Analyse Détaillé</h6>
                         </div>
                         <div class="card-body">
                             <div class="alert alert-light border-start border-4 border-info">
@@ -180,7 +180,7 @@
         function renderHistoricalData(data) {
             if (typeof data === 'string') {
                 try { data = JSON.parse(data); } 
-                catch (e) { return '<div class="alert alert-warning">Format de donn�es non reconnu</div>'; }
+                catch (e) { return '<div class="alert alert-warning">Format de données non reconnu</div>'; }
             }
             
             if (Array.isArray(data) && data.length > 0) {
@@ -194,7 +194,7 @@
                 
                 return `
                     <div class="alert alert-info mb-4">
-                        <strong>Donn�es Historiques</strong> - Analyse des performances pass�es
+                        <strong>Données Historiques</strong> - Analyse des performances passées
                     </div>
                     
                     <div class="row g-3 mb-4">
@@ -203,7 +203,7 @@
                                 <div class="card-body text-white text-center">
                                     <div class="mb-2">??</div>
                                     <h3 class="fw-bold mb-0">${totalDays}</h3>
-                                    <small class="opacity-75">Jours Analys�s</small>
+                                    <small class="opacity-75">Jours Analysés</small>
                                 </div>
                             </div>
                         </div>
@@ -230,7 +230,7 @@
                                 <div class="card-body text-white text-center">
                                     <div class="mb-2">??</div>
                                     <h3 class="fw-bold mb-0">${((maxCA - minCA) / avgCA * 100).toFixed(0)}%</h3>
-                                    <small class="opacity-75">Volatilit�</small>
+                                    <small class="opacity-75">Volatilité</small>
                                 </div>
                             </div>
                         </div>
@@ -259,7 +259,7 @@
                     
                     <div class="card border-0 shadow-sm">
                         <div class="card-header bg-white border-0 py-3">
-                            <h6 class="fw-bold mb-0">?? Historique D�taill�</h6>
+                            <h6 class="fw-bold mb-0">?? Historique Détaillé</h6>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -299,7 +299,7 @@
                 `;
             }
             
-            return '<div class="alert alert-warning">Aucune donn�e disponible</div>';
+            return '<div class="alert alert-warning">Aucune donnée disponible</div>';
         }
         
         // Run tests
