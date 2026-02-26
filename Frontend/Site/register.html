@@ -6,64 +6,118 @@
     <title>Inscription - Mokpokpo</title>
     <link rel="stylesheet" href="css/css_bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/login.css">
 </head>
-<body class="bg-light">
-
-    <nav class="navbar navbar-light bg-white border-bottom">
-        <div class="container justify-content-center">
-            <a class="navbar-brand" href="index.html">
-                <div class="brand-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
-                        <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
-                    </svg>
-                </div>
-                Mokpokpo
-            </a>
-        </div>
-    </nav>
-
-    <div class="container d-flex flex-col justify-content-center align-items-center min-vh-100 py-5">
-        <div class="card shadow-lg border-0 rounded-4" style="max-width: 500px; width: 100%;">
-            <div class="card-body p-5">
-                <div class="text-center mb-4">
-                    <h2 class="fw-bold">Créer un compte</h2>
-                    <p class="text-muted">Rejoignez la communauté Mokpokpo</p>
+<body class="login-page">
+    <div class="container-fluid p-0">
+        <div class="row g-0 login-row">
+            <!-- Left Panel (Carousel) -->
+            <div class="col-lg-8 d-none d-lg-block position-relative p-0 overflow-hidden">
+                <div id="carouselExampleFade" class="carousel slide carousel-fade h-100" data-bs-ride="carousel" data-bs-interval="5000">
+                    <div class="carousel-inner h-100">
+                        <div class="carousel-item active">
+                            <!-- Image 1: Basket of fresh herbs/plants -->
+                            <img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?q=80&w=1920&auto=format&fit=crop" class="d-block w-100" alt="Panier de récolte fraîche">
+                        </div>
+                        <div class="carousel-item">
+                            <!-- Image 2: Essential oils and natural products -->
+                            <img src="https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=1920&auto=format&fit=crop" class="d-block w-100" alt="Produits naturels et huiles essentielles">
+                        </div>
+                        <div class="carousel-item">
+                            <!-- Image 3: Green field/Farm landscape -->
+                            <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1920&auto=format&fit=crop" class="d-block w-100" alt="Champ verdoyant ferme">
+                        </div>
+                    </div>
                 </div>
                 
-                <div id="registerError" class="alert alert-danger d-none" role="alert"></div>
-
-                <form id="registerForm">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="firstName" class="form-label">Prénom</label>
-                            <input type="text" class="form-control" id="firstName" placeholder="Koffi" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="lastName" class="form-label">Nom</label>
-                            <input type="text" class="form-control" id="lastName" placeholder="NUNYE" required>
+                <!-- Overlay Content -->
+                <div class="left-panel-content px-5">
+                    <div class="mb-4">
+                        <div class="bg-white bg-opacity-10 p-3 rounded-circle d-inline-block backdrop-blur border border-white border-opacity-25">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+                                <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+                            </svg>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" placeholder="votre@email.com" required>
+                    <h1 class="display-4 fw-bold mb-3">Rejoignez la famille<br>Mokpokpo</h1>
+                    <p class="lead fw-light px-5 mx-auto" style="max-width: 600px;">Créez votre compte pour accéder à nos produits exclusifs et bénéficier de nos offres spéciales.</p>
+                </div>
+            </div>
+
+            <!-- Right Panel (Register Form) -->
+            <div class="col-lg-4 right-panel shadow-lg">
+                <div class="w-100 px-4" style="max-width: 450px;">
+                    <!-- Mobile Logo -->
+                    <div class="d-lg-none text-center mb-4">
+                        <span class="fw-bold h3 text-success">Mokpokpo</span>
                     </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Mot de passe</label>
-                        <input type="password" class="form-control" id="password" placeholder="•••••••••••••" required>
-                        <div class="form-text">Minimum 6 caractères</div>
+                    
+                    <div class="mb-4 text-center">
+                        <h3 class="fw-bold text-dark mb-1">Inscription</h3>
+                        <p class="text-muted small">Créez votre compte client</p>
+                    </div>
+                    
+                    <div id="registerError" class="alert alert-danger d-none rounded-3 d-flex align-items-center mb-3 py-2 small shadow-sm border-0" role="alert">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2 flex-shrink-0">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <span id="errorMessage" class="fw-medium"></span>
                     </div>
 
-                    <div class="d-grid gap-2 mt-4">
-                        <button type="submit" class="btn btn-primary">S'inscrire</button>
-                    </div>
-                </form>
+                    <form id="registerForm" class="needs-validation" novalidate>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="firstName" class="form-label small text-uppercase text-muted fw-bold" style="font-size: 0.75rem;">Prénom</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 border text-muted px-3 rounded-start-pill">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                    </span>
+                                    <input type="text" class="form-control custom-input border-start-0 ps-2 rounded-end-pill py-2" id="firstName" placeholder="Prénom" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="lastName" class="form-label small text-uppercase text-muted fw-bold" style="font-size: 0.75rem;">Nom</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 border text-muted px-3 rounded-start-pill">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                    </span>
+                                    <input type="text" class="form-control custom-input border-start-0 ps-2 rounded-end-pill py-2" id="lastName" placeholder="Nom" required>
+                                </div>
+                            </div>
+                        </div>
 
-                <div class="text-center mt-4">
-                    <p class="small text-muted">
-                        Déjà inscrit ? 
-                        <a href="login.html" class="text-success fw-bold text-decoration-none">Se connecter</a>
-                    </p>
+                        <div class="mb-3">
+                            <label for="email" class="form-label small text-uppercase text-muted fw-bold" style="font-size: 0.75rem;">Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0 border text-muted px-3 rounded-start-pill">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                                </span>
+                                <input type="email" class="form-control custom-input border-start-0 ps-2 rounded-end-pill py-2" id="email" placeholder="nom@exemple.com" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="password" class="form-label small text-uppercase text-muted fw-bold" style="font-size: 0.75rem;">Mot de passe</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0 border text-muted px-3 rounded-start-pill">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                </span>
+                                <input type="password" class="form-control custom-input border-start-0 ps-2 rounded-end-pill py-2" id="password" placeholder="Min. 6 caractères" required minlength="6">
+                            </div>
+                            <div class="form-text small text-end mt-1">Minimum 6 caractères</div>
+                        </div>
+                        
+                        <div class="d-grid mb-4">
+                            <button type="submit" class="btn btn-success rounded-pill py-2 fw-bold shadow-sm" style="background-color: #16a34a; border-color: #16a34a;">S'inscrire</button>
+                        </div>
+                        
+                        <div class="text-center">
+                            <p class="text-muted small mb-0">Déjà inscrit ? <a href="login.html" class="text-success fw-bold text-decoration-none">Se connecter</a></p>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -82,6 +136,13 @@
         function handleClientRegister(form) {
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                e.stopPropagation();
+
+                // Check HTML validation
+                if (!form.checkValidity()) {
+                    form.classList.add('was-validated');
+                    return;
+                }
                 
                 const firstName = document.getElementById('firstName').value;
                 const lastName = document.getElementById('lastName').value;
@@ -89,6 +150,7 @@
                 const password = document.getElementById('password').value;
                 
                 const errorDiv = document.getElementById('registerError');
+                const errorMessage = document.getElementById('errorMessage');
                 const submitBtn = form.querySelector('button[type="submit"]');
 
                 if (errorDiv) errorDiv.classList.add('d-none');
@@ -97,7 +159,6 @@
                     submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Inscription...';
                 }
 
-                // Only allow CLIENT role registration
                 const payload = {
                     nom: lastName,
                     prenom: firstName,
@@ -116,10 +177,10 @@
                     });
 
                     if (response.ok) {
-                        // Success animation
                         if (submitBtn) {
-                            submitBtn.classList.remove('btn-primary');
-                            submitBtn.classList.add('btn-success');
+                            submitBtn.classList.remove('btn-success'); 
+                            // Re-adding btn-success only for visual consistency, though it was already success green
+                            submitBtn.style.backgroundColor = '#16a34a';
                             submitBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2"><polyline points="20 6 9 17 4 12"></polyline></svg>Inscription réussie!';
                         }
                         
@@ -128,19 +189,19 @@
                         }, 1500);
                     } else {
                         const data = await response.json();
-                        if (errorDiv) {
-                            errorDiv.textContent = data.detail || 'Erreur lors de l\'inscription';
+                        if (errorDiv && errorMessage) {
+                            errorMessage.textContent = data.detail || 'Erreur lors de l\'inscription';
                             errorDiv.classList.remove('d-none');
                         }
                     }
                 } catch (error) {
                     console.error('Registration error:', error);
-                    if (errorDiv) {
-                        errorDiv.textContent = 'Impossible de contacter le serveur.';
+                    if (errorDiv && errorMessage) {
+                        errorMessage.textContent = 'Impossible de contacter le serveur.';
                         errorDiv.classList.remove('d-none');
                     }
                 } finally {
-                    if (submitBtn && !submitBtn.classList.contains('btn-success')) {
+                    if (submitBtn && submitBtn.textContent !== 'Inscription réussie!') {
                         submitBtn.disabled = false;
                         submitBtn.textContent = 'S\'inscrire';
                     }

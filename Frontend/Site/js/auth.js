@@ -122,6 +122,13 @@ function decodeJWT(token) {
 async function handleRoleLogin(form, expectedRole = null) {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        e.stopPropagation();
+
+        // Check form validity (HTML5 validation)
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+        }
         
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
@@ -129,11 +136,21 @@ async function handleRoleLogin(form, expectedRole = null) {
         const errorMessage = document.getElementById('errorMessage');
         const submitBtn = form.querySelector('button[type="submit"]');
         
-        // Reset error and loading state
+        // Reset error state
         if (errorDiv) errorDiv.classList.add('d-none');
+        
+        // Custom simple validation (double check)
+        if (!email || !password) {
+            form.classList.add('was-validated');
+            return;
+        }
+
+        // Set loading state
+        let originalBtnContent = 'Se connecter';
         if (submitBtn) {
+            originalBtnContent = submitBtn.innerHTML;
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Connexion en cours...';
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Connexion...';
         }
 
         const formData = new URLSearchParams();
@@ -203,6 +220,42 @@ async function handleRoleLogin(form, expectedRole = null) {
                         submitBtn.textContent = 'Se connecter';
                     }
                     return;
+                }
+
+                // Verify account status for CLIENT role
+                if (user.role === 'CLIENT') {
+                    try {
+                        // Fetch user details to check status
+                        const userResponse = await fetch(`${API_URL}/utilisateurs/${user.id}`, {
+                            headers: {
+                                'Authorization': `Bearer ${data.access_token}`
+                            }
+                        });
+                        
+                        if (userResponse.ok) {
+                            const userData = await userResponse.json();
+                            // Check for status field (assuming 'actif', 'is_active' or checking a status string)
+                            // If the field is not present, we assume active unless explicit 'false' or 'INACTIF'
+                            const isActive = userData.actif !== false && userData.statut !== 'INACTIF' && userData.is_active !== false;
+
+                            if (!isActive) {
+                                throw new Error('Votre compte est désactivé ou en attente de validation. Veuillez contacter l\'administrateur.');
+                            }
+                        } else {
+                            console.warn('Could not verify user status, proceeding with login anyway as token was issued.');
+                        }
+                    } catch (statusError) {
+                        console.error('Status check failed:', statusError);
+                        if (errorDiv && errorMessage) {
+                            errorMessage.textContent = statusError.message || 'Erreur lors de la vérification du compte.';
+                            errorDiv.classList.remove('d-none');
+                        }
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = 'Se connecter';
+                        }
+                        return; 
+                    }
                 }
                 
                 // Save to appropriate storage based on role
