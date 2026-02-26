@@ -279,9 +279,27 @@ async function fetchProducts() {
     if (!container) return;
 
     try {
-        const response = await fetch(`${API_URL}/produits`);
-        if (response.ok) {
-            const products = await response.json();
+        const [productsResponse, stocksResponse] = await Promise.all([
+            fetch(`${API_URL}/produits`),
+            fetch(`${API_URL}/stocks/`)
+        ]);
+
+        if (productsResponse.ok) {
+            const products = await productsResponse.json();
+            
+            // Handle stocks if available
+            let stocks = [];
+            if (stocksResponse.ok) {
+                stocks = await stocksResponse.json();
+            } else {
+                console.warn('Could not fetch stocks');
+            }
+
+            // Merge stock info into products
+            products.forEach(product => {
+                const stockInfo = stocks.find(s => s.id_produit === product.id_produit);
+                product.quantite_stock = stockInfo ? stockInfo.quantite_disponible : 0;
+            });
             
             // Store products globally for filtering
             window.allProducts = products;
@@ -295,6 +313,18 @@ async function fetchProducts() {
             if (products.length === 0) {
                 container.innerHTML = '<div class="col-12 text-center py-5"><p class="text-muted">Aucun produit disponible pour le moment.</p></div>';
                 return;
+            }
+
+            // Setup category filter dynamic population
+            const categories = [...new Set(products.map(p => p.type_produit).filter(Boolean))];
+            const categoryFilter = document.getElementById('categoryFilter');
+            if(categoryFilter && categories.length > 0) {
+                 // Keep "Toutes catégories"
+                 let options = '<option value="">Toutes catégories</option>';
+                 categories.sort().forEach(cat => {
+                     options += `<option value="${cat}">${cat}</option>`;
+                 });
+                 categoryFilter.innerHTML = options;
             }
 
             // Display all products initially
@@ -438,60 +468,68 @@ function displayFilteredProducts(products, allProducts) {
 
     products.forEach((product, index) => {
         // Find matching image
-        let imageUrl = productImages.default;
-        const productName = product.nom_produit.toLowerCase();
-        for (const [key, url] of Object.entries(productImages)) {
-            if (productName.includes(key)) {
-                imageUrl = url;
-                break;
+        let imageUrl;
+        if (product.url_image && product.url_image.trim() !== "") {
+            imageUrl = product.url_image;
+        } else {
+            imageUrl = productImages.default;
+            const productName = product.nom_produit.toLowerCase();
+            for (const [key, url] of Object.entries(productImages)) {
+                if (productName.includes(key)) {
+                    imageUrl = url;
+                    break;
+                }
             }
         }
 
         const category = product.type_produit || 'Autre';
         const badgeColor = categoryColors[category] || 'secondary';
 
+        // If description is missing
+        const description = product.description || 'Description non disponible pour ce produit.';
+        
+        // Format price with FCFA
+        const price = typeof product.prix_unitaire === 'number' 
+            ? product.prix_unitaire.toLocaleString('fr-FR') 
+            : product.prix_unitaire;
+
+        const stock = product.quantite_stock || 0;
+        const isOutOfStock = stock <= 0;
+        const addToCartBtn = isOutOfStock
+            ? `<button class="btn btn-secondary btn-sm rounded-pill px-3" disabled>Rupture</button>`
+            : `<button class="btn btn-outline-success btn-sm rounded-pill px-3" onclick="addToCart(${product.id_produit})"><i class="fas fa-cart-plus"></i></button>`;
+
         const cardHtml = `
         <div class="col-sm-6 col-lg-4 col-xl-3 fade-in" style="animation-delay: ${index * 0.05}s">
-            <div class="card product-card-enhanced h-100 border-0 rounded-4">
-                <div class="product-image-container rounded-top-4">
-                    <img src="${imageUrl}" alt="${product.nom_produit}" loading="lazy">
-                    <span class="product-badge badge bg-${badgeColor}">${category}</span>
-                    <button class="product-favorite" onclick="toggleFavorite(this, ${product.id_produit})">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-                        </svg>
+            <div class="card product-card-enhanced h-100 border-0 rounded-4 shadow-sm">
+                <div class="product-image-container rounded-top-4 position-relative">
+                    <img src="${imageUrl}" class="card-img-top" alt="${product.nom_produit}" loading="lazy" style="height: 200px; object-fit: cover; ${isOutOfStock ? 'filter: grayscale(100%); opacity: 0.7;' : ''}">
+                    <span class="badge bg-${badgeColor} product-badge position-absolute top-0 start-0 m-3 shadow-sm">${category}</span>
+                    ${isOutOfStock ? '<span class="badge bg-danger position-absolute top-50 start-50 translate-middle shadow-sm">Rupture de stock</span>' : ''}
+                    <button class="btn btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-3 p-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" onclick="toggleFavorite(this, ${product.id_produit})">
+                        <i class="far fa-heart text-danger"></i>
                     </button>
-                    <div class="quick-view-badge" onclick="quickView(${product.id_produit})">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                            <circle cx="12" cy="12" r="3"></circle>
-                        </svg>
-                        Vue rapide
-                    </div>
                 </div>
-                <div class="product-info">
-                    <h5 class="product-title">${product.nom_produit}</h5>
-                    <p class="product-scientific mb-2">${product.nom_scientifique || 'Non spécifié'}</p>
-                    <p class="product-description mb-3">${product.description || 'Aucune description disponible'}</p>
-                    <div class="d-flex justify-content-between align-items-center">
+                <div class="card-body d-flex flex-column p-4">
+                    <h5 class="card-title fw-bold mb-1 text-truncate" title="${product.nom_produit}">${product.nom_produit}</h5>
+                    <p class="text-muted small mb-2 fst-italic text-truncate">${product.nom_scientifique || ''}</p>
+                    
+                    <p class="card-text small text-muted flex-grow-1 mb-3" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 4.5em;">
+                        ${description}
+                    </p>
+                    
+                    <div class="d-flex justify-content-between align-items-end mt-auto pt-3 border-top">
                         <div>
-                            <div class="product-price">${product.prix_unitaire} FCFA</div>
-                            <div class="product-stock">Stock: ${product.quantite_stock || 0} unités</div>
+                            <div class="h5 fw-bold text-success mb-0">${price} FCFA</div>
+                            <div class="small text-muted">Stock: <span class="fw-semibold ${isOutOfStock ? 'text-danger' : ''}">${stock}</span></div>
                         </div>
+                        ${addToCartBtn}
                     </div>
-                </div>
-                <div class="product-actions">
-                    <button class="btn btn-primary btn-add-to-cart w-100 rounded-3" onclick="addToCart(${product.id_produit})">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2">
-                            <circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/>
-                            <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
-                        </svg>
-                        Ajouter au panier
-                    </button>
                 </div>
             </div>
         </div>
         `;
+
         container.insertAdjacentHTML('beforeend', cardHtml);
     });
 
@@ -534,6 +572,12 @@ function addToCart(productId) {
         console.error('Product not found');
         return;
     }
+
+    // Check stock
+    if ((product.quantite_stock || 0) <= 0) {
+        alert('Ce produit est en rupture de stock.');
+        return;
+    }
     
     // Get current cart
     let cart = JSON.parse(localStorage.getItem('cart') || '[]');
@@ -556,12 +600,17 @@ function addToCart(productId) {
             'default': 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400&h=300&fit=crop'
         };
         
-        let imageUrl = productImages.default;
-        const productName = product.nom_produit.toLowerCase();
-        for (const [key, url] of Object.entries(productImages)) {
-            if (productName.includes(key)) {
-                imageUrl = url;
-                break;
+        let imageUrl;
+        if (product.url_image && product.url_image.trim() !== "") {
+            imageUrl = product.url_image;
+        } else {
+            imageUrl = productImages.default;
+            const productName = product.nom_produit.toLowerCase();
+            for (const [key, url] of Object.entries(productImages)) {
+                if (productName.includes(key)) {
+                    imageUrl = url;
+                    break;
+                }
             }
         }
         
@@ -599,3 +648,4 @@ function addToCart(productId) {
     
     console.log('Added to cart:', product.nom_produit);
 }
+

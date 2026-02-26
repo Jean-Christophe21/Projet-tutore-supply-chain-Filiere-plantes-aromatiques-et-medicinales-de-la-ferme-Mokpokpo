@@ -5,121 +5,195 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact - Mokpokpo</title>
     <link rel="stylesheet" href="css/css_bootstrap/bootstrap.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        .hover-card { 
+            transition: all 0.3s ease; 
+        }
+        .hover-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; 
+        }
+    </style>
 </head>
 <body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar d-flex flex-column">
+            <div class="sidebar-header">
+                <a href="index.html" class="brand-wrapper">
+                    <div class="brand-icon">
+                        <i class="fas fa-leaf fa-lg"></i>
+                    </div>
+                    <span>Mokpokpo</span>
+                </a>
+            </div>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="index.html">
-                <div class="brand-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+            <nav class="sidebar-nav flex-grow-1">
+                <div class="nav-label">Tableau de bord</div>
+                <a href="dashboard.html" class="nav-link">
+                    <div class="nav-icon"><i class="fas fa-chart-pie"></i></div>
+                    <span>Vue d'ensemble</span>
+                </a>
+                
+                <div class="nav-label mt-4">Boutique</div>
+                <a href="products.html" class="nav-link">
+                    <div class="nav-icon"><i class="fas fa-store"></i></div>
+                    <span>Catalogue Produits</span>
+                </a>
+                <a href="cart.html" class="nav-link">
+                    <div class="nav-icon"><i class="fas fa-shopping-bag"></i></div>
+                    <span>Mon Panier</span>
+                    <span class="badge bg-danger rounded-pill ms-auto shadow-sm" id="sidebarCartCount">0</span>
+                </a>
+                <a href="orders.html" class="nav-link">
+                    <div class="nav-icon"><i class="fas fa-truck-loading"></i></div>
+                    <span>Mes Commandes</span>
+                </a>
+                
+                <div class="nav-label mt-4">Paramètres</div>
+                <a href="dashboard.html#profile" class="nav-link">
+                    <div class="nav-icon"><i class="fas fa-user-cog"></i></div>
+                    <span>Mon Profil</span>
+                </a>
+                <a href="contact.html" class="nav-link active">
+                    <div class="nav-icon"><i class="fas fa-headset"></i></div>
+                    <span>Support Client</span>
+                </a>
+            </nav>
+
+            <div class="user-minimenu">
+                <div class="d-flex align-items-center gap-3 p-3 rounded-3 bg-white bg-opacity-10 border border-white border-opacity-10">
+                    <div class="bg-gradient-primary rounded-circle d-flex align-items-center justify-content-center text-white shadow-sm" style="width: 42px; height: 42px; background: linear-gradient(135deg, #16a34a, #15803d);">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="flex-grow-1 overflow-hidden">
+                        <div class="fw-bold text-white text-truncate" id="userNameDisplay" style="font-size: 0.9rem;"></div>
+                        <div class="small text-muted text-truncate" style="font-size: 0.7rem; opacity: 0.7;">Compte Client</div>
+                    </div>
+                    <button onclick="logout()" class="btn btn-sm btn-outline-danger p-0 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.1);">
+                        <i class="fas fa-sign-out-alt fa-sm"></i>
+                    </button>
                 </div>
-                Mokpokpo
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html">Accueil</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="products.html">Catalogue</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="about.html">Ã€ propos</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="contact.html">Contact</a>
-                    </li>
-                </ul>
-                <div class="d-flex align-items-center gap-2">
-                    <a href="cart.html" class="btn btn-outline-primary position-relative border-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="8" cy="21" r="1"/>
-                            <circle cx="19" cy="21" r="1"/>
-                            <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
-                        </svg>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success cart-badge" style="display: none;">
-                            0
-                        </span>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-link text-dark d-lg-none mobile-toggle p-0" id="sidebarToggle">
+                        <i class="fas fa-bars fa-lg"></i>
+                    </button>
+                    <h5 class="mb-0 fw-bold">Contact & Support</h5>
+                </div>
+
+                <div class="header-actions">
+                    <a href="cart.html" class="action-btn text-decoration-none">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="notification-badge cart-badge">0</span>
                     </a>
-                    
-                    <div id="auth-links" class="d-flex gap-2">
-                        <a href="login.html" class="btn btn-outline-primary">Connexion</a>
-                        <a href="register.html" class="btn btn-primary">S'inscrire</a>
-                    </div>
-                    
-                    <div id="user-links" class="d-flex gap-2 d-none align-items-center">
-                        <span class="text-muted small me-2">ConnectÃ©</span>
-                        <button onclick="logout()" class="btn btn-outline-danger btn-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                            DÃ©connexion
-                        </button>
+                    <div class="vr mx-2"></div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="text-end d-none d-sm-block">
+                            <div class="fw-bold small text-dark" id="dashboardUserName">Chargement...</div>
+                            <div class="small text-muted" id="dashboardUserEmail" style="font-size: 0.7rem;"></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </nav>
+            </header>
 
-    <div class="container py-5">
-        <div class="row g-5">
-            <div class="col-lg-6">
-                <h1 class="fw-bold mb-4">Contactez-nous</h1>
-                <p class="text-muted mb-5">
-                    Une question ? Un projet ? N'hÃ©sitez pas Ã  nous Ã©crire, notre Ã©quipe vous rÃ©pondra dans les plus brefs dÃ©lais.
-                </p>
+            <!-- Content -->
+            <div class="content-wrapper">
+                
+                <div class="row justify-content-center">
+                    <div class="col-lg-10 text-center mb-5">
+                        <h2 class="fw-bold mb-3">Besoin d'aide ?</h2>
+                        <p class="text-muted w-75 mx-auto">
+                            Notre équipe est là pour répondre à toutes vos questions sur nos produits, vos commandes ou nos services.
+                            N'hésitez pas à nous contacter par e-mail ou par téléphone.
+                        </p>
+                    </div>
 
-                <div class="d-flex mb-4">
-                    <div class="flex-shrink-0 btn btn-primary rounded-circle" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.05 12.05 0 0 0 .57 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.03 12.03 0 0 0 2.81.57A2 2 0 0 1 22 16.92z"/></svg>
-                    </div>
-                    <div class="ms-3">
-                        <h5 class="fw-bold">TÃ©lÃ©phone</h5>
-                        <p class="text-muted">+228 00 00 00 00</p>
-                    </div>
-                </div>
-
-                <div class="d-flex mb-4">
-                    <div class="flex-shrink-0 btn btn-primary rounded-circle" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                    </div>
-                    <div class="ms-3">
-                        <h5 class="fw-bold">Email</h5>
-                        <p class="text-muted">contact@mokpokpo.com</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-6">
-                <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-                    <div class="card-body p-5">
-                        <h3 class="fw-bold mb-4">Envoyez un message</h3>
-                        <form>
-                            <div class="mb-3">
-                                <label for="contactName" class="form-label">Nom complet</label>
-                                <input type="text" class="form-control" id="contactName" placeholder="Votre nom">
+                    <div class="col-lg-10">
+                        <div class="row g-4 justify-content-center">
+                            <!-- Phone Card -->
+                            <div class="col-md-4">
+                                <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center hover-card bg-white">
+                                    <div class="mb-4 mx-auto bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                        <i class="fas fa-phone-alt fa-2x text-primary"></i>
+                                    </div>
+                                    <h5 class="fw-bold mb-2">Téléphone</h5>
+                                    <p class="text-muted small mb-0">Du lundi au vendredi, 8h-18h</p>
+                                    <p class="fw-bold text-primary mt-3 mb-0 fs-5">+228 00 00 00 00</p>
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <label for="contactEmail" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="contactEmail" placeholder="votre@email.com">
+                            
+                            <!-- Email Card -->
+                            <div class="col-md-4">
+                                <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center hover-card bg-white">
+                                     <div class="mb-4 mx-auto bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                        <i class="fas fa-envelope fa-2x text-success"></i>
+                                    </div>
+                                    <h5 class="fw-bold mb-2">Email</h5>
+                                    <p class="text-muted small mb-0">Réponse sous 24h ouvrées</p>
+                                    <p class="fw-bold text-success mt-3 mb-0 fs-5">contact@mokpokpo.com</p>
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <label for="contactMessage" class="form-label">Message</label>
-                                <textarea class="form-control" id="contactMessage" rows="4" placeholder="Comment pouvons-nous vous aider ?"></textarea>
+
+                            <!-- Address Card -->
+                            <div class="col-md-4">
+                                 <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center hover-card bg-white">
+                                     <div class="mb-4 mx-auto bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                        <i class="fas fa-map-marker-alt fa-2x text-warning"></i>
+                                    </div>
+                                    <h5 class="fw-bold mb-2">Adresse</h5>
+                                    <p class="text-muted small mb-0">Visitez notre ferme</p>
+                                    <p class="fw-bold text-warning mt-3 mb-0 fs-5">Région des Plateaux, Togo</p>
+                                </div>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100">Envoyer</button>
-                        </form>
+                        </div>
+
+                        <!-- FAQ CTA -->
+                        <div class="mt-5 text-center">
+                             <div class="card border-0 shadow-sm rounded-4 p-5 bg-light">
+                                <div class="py-2">
+                                    <h4 class="fw-bold mb-3">Vous avez encore des questions ?</h4>
+                                    <p class="text-muted mb-4">Consultez notre foire aux questions pour trouver des réponses immédiates.</p>
+                                    <button class="btn btn-dark rounded-pill px-4 py-2 fw-bold shadow-sm">
+                                        Voir la FAQ <i class="fas fa-arrow-right ms-2"></i>
+                                    </button>
+                                </div>
+                             </div>
+                        </div>
+
                     </div>
                 </div>
+
             </div>
-        </div>
+        </main>
     </div>
 
+    <!-- Scripts -->
     <script src="js/js_bootstrap/bootstrap.bundle.min.js"></script>
-    <script src="js/script.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+             // Mobile sidebar toggle
+            const toggle = document.getElementById('sidebarToggle');
+            const sidebar = document.querySelector('.sidebar');
+            if(toggle && sidebar) {
+                toggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('show');
+                });
+            }
+            
+            // Re-use dashboard user loader logic
+            // dashboard.js runs on load and sets user info
+        });
+    </script>
 </body>
 </html>

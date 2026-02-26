@@ -6,7 +6,7 @@ const ROLE_REDIRECTS = {
     'ADMIN': '../App/admin.html',
     'GEST_STOCK': '../App/stock-dashboard.html',
     'GEST_COMMERCIAL': '../App/commercial-dashboard.html',
-    'CLIENT': '../App/dashboard.html'
+    'CLIENT': 'dashboard.html'
 };
 
 // Roles that require session storage (temporary) instead of localStorage (persistent)
@@ -157,6 +157,8 @@ async function handleRoleLogin(form, expectedRole = null) {
         formData.append('username', email);
         formData.append('password', password);
 
+        let isLoginSuccess = false;
+
         try {
             console.log('Attempting login to:', `${API_URL}/auth/login`);
             const response = await fetch(`${API_URL}/auth/login`, {
@@ -172,21 +174,19 @@ async function handleRoleLogin(form, expectedRole = null) {
             if (response.ok) {
                 const data = await response.json();
                 console.log('Login successful, saving token');
-                console.log('Login response data:', data);
+                
+                // ... (token decoding and saving logic) ...
                 
                 // Decode JWT to get user info
                 const decodedToken = decodeJWT(data.access_token);
-                console.log('Decoded token:', decodedToken);
-                console.log('All token keys:', Object.keys(decodedToken || {}));
+                // ...
                 
                 if (!decodedToken) {
                     throw new Error('Impossible de décoder le token JWT');
                 }
                 
-                // Extract user info from token - check multiple possible field names
+                // Extract user info from token
                 const rawRole = decodedToken.role || decodedToken.user_role || decodedToken.type_utilisateur || decodedToken.type;
-                
-                // Normalize role to uppercase to handle case variations
                 const normalizedRole = rawRole ? rawRole.toString().toUpperCase().trim() : null;
                 
                 const user = {
@@ -196,11 +196,6 @@ async function handleRoleLogin(form, expectedRole = null) {
                     nom: decodedToken.nom || decodedToken.name || decodedToken.last_name || decodedToken.lastname,
                     prenom: decodedToken.prenom || decodedToken.first_name || decodedToken.firstname || decodedToken.given_name
                 };
-                
-                console.log('User info extracted from token:', user);
-                console.log('Raw role from token:', rawRole);
-                console.log('Normalized role:', normalizedRole);
-                console.log('Expected role:', expectedRole);
                 
                 // Validate that role exists
                 if (!user.role) {
@@ -215,9 +210,10 @@ async function handleRoleLogin(form, expectedRole = null) {
                         errorMessage.textContent = `Accès refusé. Cette page est réservée aux ${getRoleName(expectedRole)}.`;
                         errorDiv.classList.remove('d-none');
                     }
+                    // Reset button explicitly
                     if (submitBtn) {
                         submitBtn.disabled = false;
-                        submitBtn.textContent = 'Se connecter';
+                        submitBtn.innerHTML = originalBtnContent || 'Se connecter';
                     }
                     return;
                 }
@@ -225,7 +221,6 @@ async function handleRoleLogin(form, expectedRole = null) {
                 // Verify account status for CLIENT role
                 if (user.role === 'CLIENT') {
                     try {
-                        // Fetch user details to check status
                         const userResponse = await fetch(`${API_URL}/utilisateurs/${user.id}`, {
                             headers: {
                                 'Authorization': `Bearer ${data.access_token}`
@@ -234,15 +229,11 @@ async function handleRoleLogin(form, expectedRole = null) {
                         
                         if (userResponse.ok) {
                             const userData = await userResponse.json();
-                            // Check for status field (assuming 'actif', 'is_active' or checking a status string)
-                            // If the field is not present, we assume active unless explicit 'false' or 'INACTIF'
                             const isActive = userData.actif !== false && userData.statut !== 'INACTIF' && userData.is_active !== false;
 
                             if (!isActive) {
                                 throw new Error('Votre compte est désactivé ou en attente de validation. Veuillez contacter l\'administrateur.');
                             }
-                        } else {
-                            console.warn('Could not verify user status, proceeding with login anyway as token was issued.');
                         }
                     } catch (statusError) {
                         console.error('Status check failed:', statusError);
@@ -250,28 +241,27 @@ async function handleRoleLogin(form, expectedRole = null) {
                             errorMessage.textContent = statusError.message || 'Erreur lors de la vérification du compte.';
                             errorDiv.classList.remove('d-none');
                         }
+                        // Reset button explicitly
                         if (submitBtn) {
                             submitBtn.disabled = false;
-                            submitBtn.textContent = 'Se connecter';
+                            submitBtn.innerHTML = originalBtnContent || 'Se connecter';
                         }
                         return; 
                     }
                 }
                 
-                // Save to appropriate storage based on role
+                // Login totally successful
+                isLoginSuccess = true;
+                
+                // Save to appropriate storage
                 saveAuthData(data.access_token, user);
-                
-                // Mark that we just logged in (to handle timing issues)
                 sessionStorage.setItem('justLoggedIn', 'true');
-                
-                console.log('✅ Auth data saved successfully');
-                console.log('Storage type:', getStorageType(user.role) === sessionStorage ? 'sessionStorage' : 'localStorage');
-                console.log('Saved user:', getCurrentUser());
-                console.log('Saved token:', getToken());
                 
                 // Success animation
                 if (submitBtn) {
-                    submitBtn.className = submitBtn.className.replace(/btn-primary/g, 'btn-success').replace(/btn-danger/g, 'btn-success');
+                    // Start success animation
+                    submitBtn.classList.remove('btn-danger', 'btn-primary');
+                    submitBtn.classList.add('btn-success');
                     submitBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-2"><polyline points="20 6 9 17 4 12"></polyline></svg>Connexion réussie!';
                 }
                 
@@ -282,12 +272,12 @@ async function handleRoleLogin(form, expectedRole = null) {
                     window.location.href = redirectUrl;
                 }, 1500);
             } else {
+                // If not response.ok
                 const data = await response.json().catch(() => ({ detail: 'Erreur inconnue' }));
                 console.error('Login failed:', response.status, data);
                 
                 if (errorDiv && errorMessage) {
                     let errorText = '';
-                    
                     if (response.status === 404) {
                         errorText = 'Service de connexion introuvable. Vérifiez que le backend est démarré.';
                     } else if (response.status === 401) {
@@ -297,7 +287,6 @@ async function handleRoleLogin(form, expectedRole = null) {
                     } else {
                         errorText = data.detail || 'Identifiant ou mot de passe incorrect';
                     }
-                    
                     errorMessage.textContent = errorText;
                     errorDiv.classList.remove('d-none');
                 }
@@ -306,7 +295,6 @@ async function handleRoleLogin(form, expectedRole = null) {
             console.error('Login error:', error);
             if (errorDiv && errorMessage) {
                 let errorText = '';
-                
                 if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
                     errorText = 'Impossible de contacter le serveur. Vérifiez que le backend est démarré sur https://bd-mokpokokpo.onrender.com';
                 } else if (error.name === 'TypeError') {
@@ -314,14 +302,14 @@ async function handleRoleLogin(form, expectedRole = null) {
                 } else {
                     errorText = 'Erreur de connexion: ' + error.message;
                 }
-                
                 errorMessage.textContent = errorText;
                 errorDiv.classList.remove('d-none');
             }
         } finally {
-            if (submitBtn && !submitBtn.className.includes('btn-success')) {
+            // Only reset if login was NOT successful
+            if (submitBtn && !isLoginSuccess) {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Se connecter';
+                submitBtn.innerHTML = originalBtnContent || 'Se connecter';
             }
         }
     });
